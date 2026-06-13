@@ -246,6 +246,72 @@ body {
 .lock-info { font-size: 13.5px; font-weight: 600; color: var(--status-done-fg); background: var(--status-done-bg); border-radius: var(--radius-sm); padding: 9px 12px; margin-bottom: 6px; }
 .lk-submit:disabled { opacity: 0.6; cursor: default; }
 .signout-btn { white-space: nowrap; }
+
+/* change-password modal */
+.pw-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(20, 22, 26, 0.45);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: pw-fade 0.15s ease;
+}
+@keyframes pw-fade { from { opacity: 0; } to { opacity: 1; } }
+.pw-modal {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 22px 24px 24px;
+  text-align: start;
+}
+.pw-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.pw-head h2 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.pw-close {
+  flex: none;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.pw-close:hover { background: var(--surface-sunken); color: var(--text-primary); }
+.pw-modal .sub { color: var(--text-secondary); font-size: var(--text-sm); margin: 0 0 14px; }
+.pw-done { text-align: center; padding: 14px 0 4px; }
+.pw-done-ic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--status-done-bg);
+  color: var(--status-done-fg);
+  margin-bottom: 12px;
+}
+.pw-done p { font-weight: 600; margin: 0 0 18px; }
+.lk-back { display: block; margin: 12px auto 0; text-align: center; }
 @media (prefers-reduced-motion: reduce) {
   .brand, .eyebrow .rule, .chip--report, .chip--streak, .login-card { animation: none !important; }
 }

@@ -71,6 +71,21 @@ export const T: Record<string, Entry> = {
   "lock.unlock": { en: "Sign in", ar: "تسجيل الدخول" },
   "lock.errWrong": { en: "Wrong email or password", ar: "الإيميل أو كلمة السر غلط" },
 
+  // ---- change password ----
+  "pw.title": { en: "Change password", ar: "تغيير كلمة السر" },
+  "pw.sub": { en: "Set a new password for your account.", ar: "عيّن كلمة سر جديدة لحسابك." },
+  "pw.current": { en: "Current password", ar: "كلمة السر الحالية" },
+  "pw.new": { en: "New password", ar: "كلمة السر الجديدة" },
+  "pw.confirm": { en: "Confirm new password", ar: "أكّد كلمة السر الجديدة" },
+  "pw.save": { en: "Update password", ar: "حدّث كلمة السر" },
+  "pw.cancel": { en: "Cancel", ar: "إلغاء" },
+  "pw.done": { en: "Done", ar: "تم" },
+  "pw.okMsg": { en: "Password updated", ar: "انحدّثت كلمة السر" },
+  "pw.errShort": { en: "Password must be at least 6 characters", ar: "كلمة السر لازم ٦ أحرف على الأقل" },
+  "pw.errMatch": { en: "New passwords don't match", ar: "كلمتا السر الجديدتين مو متطابقتين" },
+  "pw.errSame": { en: "New password must differ from the current one", ar: "لازم كلمة السر الجديدة تختلف عن الحالية" },
+  "pw.errCurrent": { en: "Current password is wrong", ar: "كلمة السر الحالية غلط" },
+
   // ---- tabs ----
   "tab.dashboard": { en: "Dashboard", ar: "اللوحة" },
   "tab.log": { en: "Daily Log", ar: "السجل اليومي" },

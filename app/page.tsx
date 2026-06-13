@@ -7,6 +7,7 @@ import { useLang } from "@/lib/i18n";
 import { DB } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 import Lock from "@/components/Lock";
+import ChangePassword from "@/components/ChangePassword";
 import Dashboard from "@/components/Dashboard";
 import DailyLog from "@/components/DailyLog";
 import Agenda from "@/components/Agenda";
@@ -39,6 +40,7 @@ function LangToggle() {
 function Header() {
   const { db, setMeta } = useStore();
   const { t } = useLang();
+  const [showPw, setShowPw] = useState(false);
   const signOut = async () => {
     try {
       localStorage.setItem("aw-keep", "0");
@@ -50,6 +52,7 @@ function Header() {
   };
   return (
     <header className="app-header">
+      {showPw && <ChangePassword onClose={() => setShowPw(false)} />}
       <div className="head-row">
         <div className="logo">📋</div>
         <div>
@@ -58,6 +61,9 @@ function Header() {
         </div>
         <div className="head-spacer"></div>
         <LangToggle />
+        <button className="btn ghost sm signout-btn" onClick={() => setShowPw(true)}>
+          {t("pw.title")}
+        </button>
         <button className="btn ghost sm signout-btn" onClick={signOut}>
           {t("lock.signOut")}
         </button>
