@@ -495,6 +495,11 @@ h2.sec {
   flex-wrap: wrap;
   margin: 12px 0 0;
 }
+/* keep category chips in normal flow — the login `.chip` is position:absolute
+   and otherwise leaks in, collapsing this row to zero height. */
+.chips .chip {
+  position: relative;
+}
 .chip {
   border: 1px solid var(--line);
   background: #fff;
