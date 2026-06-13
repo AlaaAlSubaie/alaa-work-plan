@@ -1,17 +1,61 @@
 :root {
-  --bg: #0f172a;
-  --panel: #ffffff;
-  --soft: #f1f5f9;
-  --line: #e2e8f0;
-  --ink: #0f172a;
-  --muted: #64748b;
-  --brand: #2563eb;
-  --brand-d: #1d4ed8;
-  --green: #16a34a;
-  --amber: #d97706;
-  --red: #dc2626;
-  --violet: #7c3aed;
-  --shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 8px 24px rgba(15, 23, 42, 0.06);
+  /* ===== Alaa Work Plan design system — Apple theme (white + blue) ===== */
+  --surface-app: #f5f5f7;
+  --surface-card: #ffffff;
+  --surface-sunken: #f5f5f7;
+  --text-primary: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --text-muted: #86868b;
+  --text-placeholder: #aeaeb2;
+  --accent: #0071e3;
+  --accent-hover: #0077ed;
+  --accent-pressed: #0062c4;
+  --accent-tint: #e8f2fd;
+  --accent-tint-strong: #d2e6fb;
+  --accent-secondary: #5e5ce6;
+  --border-subtle: #ededf0;
+  --border-default: #e2e2e6;
+  --border-strong: #d2d2d7;
+  --ring: 0 0 0 3px rgba(0, 113, 227, 0.4);
+
+  /* status foreground + tint-background pairs */
+  --status-pending-fg: #6e6e73;  --status-pending-bg: #ededf0;
+  --status-progress-fg: #b25000; --status-progress-bg: #fdebd6;
+  --status-done-fg: #1d8a4e;     --status-done-bg: #e3f6ea;
+  --status-issue-fg: #d70015;    --status-issue-bg: #ffe5e7;
+  --status-info-fg: #0066cc;     --status-info-bg: #e1ecfb;
+
+  /* radii — soft, planner-like */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  /* soft, warm-tinted, low-contrast shadows */
+  --shadow-xs: 0 1px 2px rgba(27, 36, 33, 0.05);
+  --shadow-card: 0 1px 2px rgba(27, 36, 33, 0.05), 0 4px 14px rgba(27, 36, 33, 0.06);
+  --shadow-md: 0 2px 4px rgba(27, 36, 33, 0.05), 0 6px 16px rgba(27, 36, 33, 0.07);
+  --shadow-lg: 0 6px 12px rgba(27, 36, 33, 0.06), 0 18px 38px rgba(27, 36, 33, 0.1);
+
+  /* type */
+  --font-sans: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI",
+    "Helvetica Neue", Arial, "Noto Naskh Arabic", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas,
+    monospace;
+
+  /* ===== back-compat aliases used across existing components ===== */
+  --bg: var(--surface-app);
+  --panel: var(--surface-card);
+  --soft: var(--surface-sunken);
+  --line: var(--border-default);
+  --ink: var(--text-primary);
+  --muted: var(--text-muted);
+  --brand: var(--accent);
+  --brand-d: var(--accent-hover);
+  --green: var(--status-done-fg);
+  --amber: var(--status-progress-fg);
+  --red: var(--status-issue-fg);
+  --violet: var(--accent-secondary);
+  --shadow: var(--shadow-card);
 }
 
 * {
@@ -25,19 +69,21 @@ body {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-    Arial, "Noto Naskh Arabic", sans-serif;
-  background: linear-gradient(180deg, #eef2f7, #e7edf5 40%, #eef2f7);
-  color: var(--ink);
+  font-family: var(--font-sans);
+  background: var(--surface-app);
+  color: var(--text-primary);
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* header */
+/* header — translucent surface with blur (design system) */
 .app-header {
-  background: linear-gradient(120deg, #1e3a8a, #2563eb);
-  color: #fff;
-  padding: 18px 22px;
-  box-shadow: var(--shadow);
+  background: color-mix(in srgb, var(--surface-card) 80%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--text-primary);
+  padding: 16px 28px;
+  border-bottom: 1px solid var(--border-default);
   position: sticky;
   top: 0;
   z-index: 50;
@@ -47,28 +93,31 @@ body {
   align-items: center;
   gap: 14px;
   flex-wrap: wrap;
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 .logo {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.18);
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #fff;
   display: grid;
   place-items: center;
   font-size: 20px;
+  box-shadow: var(--shadow-xs);
 }
 .app-header h1 {
   font-size: 19px;
   margin: 0;
-  font-weight: 700;
-  letter-spacing: 0.2px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
 }
 .app-header .sub {
   font-size: 12.5px;
-  opacity: 0.85;
-  margin-top: 1px;
+  color: var(--text-muted);
+  margin-top: 2px;
 }
 .head-spacer {
   flex: 1;
@@ -79,63 +128,96 @@ body {
   flex-wrap: wrap;
 }
 .head-fields input {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #fff;
-  border-radius: 8px;
-  padding: 7px 10px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+  border-radius: var(--radius-md);
+  padding: 9px 12px;
   font-size: 12.5px;
   width: 150px;
   outline: none;
+  transition: border-color var(--dur-fast, 120ms) ease,
+    box-shadow var(--dur-fast, 120ms) ease;
 }
 .head-fields input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-placeholder);
+}
+.head-fields input:focus {
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+.langtoggle {
+  display: inline-flex;
+  background: var(--surface-sunken);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+}
+.lt {
+  border: none;
+  background: transparent;
+  padding: 6px 13px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  min-width: 34px;
+}
+.lt.on {
+  background: var(--surface-card);
+  color: var(--accent);
+  box-shadow: var(--shadow-xs);
 }
 
 .wrap {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 18px 22px 60px;
+  padding: 22px 28px 56px;
 }
 
-/* tabs */
+/* tabs — pill style (design system) */
 .tabs {
   display: flex;
-  gap: 6px;
-  margin: 18px 0;
+  gap: 4px;
+  margin: 16px 0 20px;
   flex-wrap: wrap;
 }
 .tab {
   border: none;
-  background: var(--panel);
-  color: var(--muted);
-  padding: 10px 18px;
-  border-radius: 10px;
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 9px 16px;
+  border-radius: 999px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  box-shadow: var(--shadow);
-  transition: 0.15s;
-}
-.tab.active {
-  background: var(--brand);
-  color: #fff;
+  transition: background 0.12s ease, color 0.12s ease;
 }
 .tab:hover:not(.active) {
-  color: var(--ink);
+  color: var(--text-primary);
+  background: var(--surface-sunken);
+}
+.tab.active {
+  background: var(--accent-tint);
+  color: var(--accent);
+  font-weight: 600;
 }
 
 .card {
-  background: var(--panel);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
-  padding: 18px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 20px;
 }
 .card + .card {
   margin-top: 16px;
 }
 h2.sec {
-  font-size: 15px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   margin: 0 0 12px;
   display: flex;
   align-items: center;
@@ -143,9 +225,26 @@ h2.sec {
 }
 .hint {
   font-size: 12.5px;
-  color: var(--muted);
+  color: var(--text-muted);
   margin: 0 0 12px;
   line-height: 1.5;
+}
+
+/* mono numerals/dates (design system: numbers in mono for alignment) */
+.time,
+.count,
+.pdate,
+.saved-meta,
+.agpct,
+.dchip-num,
+.dchip-ratio,
+.mcell-num,
+.mcell-ratio,
+.sb-count,
+.agtimebadge,
+.duebadge,
+.kpi .num {
+  font-family: var(--font-mono);
 }
 
 /* quick add */
@@ -173,29 +272,41 @@ h2.sec {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 .btn {
-  border: none;
-  border-radius: 10px;
-  padding: 12px 18px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 11px 18px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  background: var(--brand);
+  background: var(--accent);
   color: #fff;
-  transition: 0.15s;
+  box-shadow: var(--shadow-xs);
+  transition: background 0.12s ease, border-color 0.12s ease,
+    transform 0.12s ease, box-shadow 0.12s ease;
   white-space: nowrap;
 }
 .btn:hover {
-  background: var(--brand-d);
+  background: var(--accent-hover);
+}
+.btn:active {
+  background: var(--accent-pressed);
+  transform: translateY(0.5px) scale(0.99);
+}
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
 }
 .btn.ghost {
-  background: var(--soft);
-  color: var(--ink);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
 }
 .btn.ghost:hover {
-  background: #e2e8f0;
+  background: var(--surface-sunken);
+  border-color: var(--text-muted);
 }
 .btn.sm {
-  padding: 7px 12px;
+  padding: 7px 13px;
   font-size: 12.5px;
 }
 .chips {
@@ -292,28 +403,32 @@ mark {
   border-bottom: none;
 }
 .badge {
-  font-size: 10.5px;
-  font-weight: 700;
-  color: #fff;
-  padding: 3px 8px;
-  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
   white-space: nowrap;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 .b-Achievement {
-  background: var(--green);
+  color: var(--status-done-fg);
+  background: var(--status-done-bg);
 }
 .b-Task {
-  background: var(--brand);
+  color: var(--status-info-fg);
+  background: var(--status-info-bg);
 }
 .b-Meeting {
-  background: var(--violet);
+  color: var(--accent-secondary);
+  background: #ebebfb;
 }
 .b-Issue {
-  background: var(--red);
+  color: var(--status-issue-fg);
+  background: var(--status-issue-bg);
 }
 .b-Note {
-  background: var(--muted);
+  color: var(--text-secondary);
+  background: var(--surface-sunken);
 }
 .entry .txt {
   flex: 1;
@@ -354,6 +469,17 @@ mark {
   text-align: center;
   padding: 26px;
   font-style: italic;
+}
+.entry.editing {
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.entry.editing .searchbox {
+  flex: 1;
+  min-width: 160px;
+}
+.entry.editing .filtersel {
+  flex-shrink: 0;
 }
 
 /* projects board */
@@ -419,7 +545,7 @@ mark {
   background: var(--red);
 }
 .count {
-  margin-left: auto;
+  margin-inline-start: auto;
   background: #fff;
   border-radius: 999px;
   padding: 1px 8px;
@@ -433,28 +559,28 @@ mark {
   margin-bottom: 9px;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
   cursor: grab;
-  border-left: 3px solid var(--line);
+  border-inline-start: 3px solid var(--line);
 }
 .pcard.l-Upcoming {
-  border-left-color: var(--violet);
+  border-inline-start-color: var(--violet);
 }
 .pcard.l-Pending {
-  border-left-color: var(--amber);
+  border-inline-start-color: var(--amber);
 }
 .pcard.l-Progress {
-  border-left-color: var(--brand);
+  border-inline-start-color: var(--brand);
 }
 .pcard.l-Testing {
-  border-left-color: #0891b2;
+  border-inline-start-color: #0891b2;
 }
 .pcard.l-Done {
-  border-left-color: var(--green);
+  border-inline-start-color: var(--green);
 }
 .pcard.l-Completed {
-  border-left-color: var(--green);
+  border-inline-start-color: var(--green);
 }
 .pcard.l-Issues {
-  border-left-color: var(--red);
+  border-inline-start-color: var(--red);
 }
 .pcard.dragging {
   opacity: 0.4;
@@ -726,7 +852,7 @@ mark {
   padding: 1px 8px;
 }
 .rem-when {
-  margin-left: auto;
+  margin-inline-start: auto;
   font-size: 11.5px;
   font-weight: 700;
 }
@@ -837,7 +963,7 @@ mark {
   border-radius: 999px;
 }
 .empitem .iconbtn {
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 /* assignment chips in the details panel */
@@ -908,6 +1034,9 @@ mark {
   font-family: inherit;
   outline: none;
   max-width: 130px;
+}
+.taskassign.projsel {
+  max-width: 200px;
 }
 .taskrow {
   display: flex;

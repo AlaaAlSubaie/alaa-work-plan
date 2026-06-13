@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useStore } from "@/lib/store";
 import { buildReport, weekToWednesday, enhanceText } from "@/lib/report";
 import { useToast } from "./Toast";
+import { useLang } from "@/lib/i18n";
 
 function iso(d: Date) {
   const z = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
@@ -22,6 +23,7 @@ function rangeTitle(from: string, to: string) {
 export default function WeeklyReport() {
   const { db, saveReport, delReport } = useStore();
   const toast = useToast();
+  const { t } = useLang();
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [lang, setLang] = useState<"en" | "ar">("en");
@@ -147,35 +149,30 @@ export default function WeeklyReport() {
 
   return (
     <div className="card">
-      <h2 className="sec">📄 Generate weekly achievement report</h2>
-      <p className="hint">
-        Everything you write in the <b>Daily Log</b> (and complete in the{" "}
-        <b>Agenda</b>) within the selected dates is pulled in automatically. Pick
-        the period, click <b>Generate</b>, optionally <b>✨ Enhance</b> the
-        wording, then <b>Copy</b> — or <b>💾 Save</b> it to revisit any time.
-      </p>
+      <h2 className="sec">📄 {t("wr.title")}</h2>
+      <p className="hint">{t("wr.hint")}</p>
       <div className="quickdates">
         <button className="btn ghost sm" onClick={() => quick("weekWed")}>
-          This week (up to Wednesday)
+          {t("wr.thisWeek")}
         </button>
         <button className="btn ghost sm" onClick={() => quick("last7")}>
-          Last 7 days
+          {t("wr.last7")}
         </button>
         <button className="btn ghost sm" onClick={() => quick("month")}>
-          This month
+          {t("wr.thisMonth")}
         </button>
       </div>
       <div className="rrow">
         <div className="field">
-          <label>From</label>
+          <label>{t("wr.from")}</label>
           <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
         </div>
         <div className="field">
-          <label>To</label>
+          <label>{t("wr.to")}</label>
           <input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
         </div>
         <div className="field">
-          <label>Language</label>
+          <label>{t("wr.language")}</label>
           <select value={lang} onChange={(e) => setLang(e.target.value as "en" | "ar")}>
             <option value="en">English</option>
             <option value="ar">العربية</option>
@@ -187,7 +184,7 @@ export default function WeeklyReport() {
             checked={incProjects}
             onChange={(e) => setIncProjects(e.target.checked)}
           />
-          Include projects summary
+          {t("wr.incProjects")}
         </label>
         <label className="toggle">
           <input
@@ -195,40 +192,23 @@ export default function WeeklyReport() {
             checked={incAgenda}
             onChange={(e) => setIncAgenda(e.target.checked)}
           />
-          Include completed agenda tasks
+          {t("wr.incAgenda")}
         </label>
         <button className="btn" onClick={generate}>
-          ✨ Generate
+          ✨ {t("wr.generate")}
         </button>
       </div>
 
       {counts && (
-        <div className={"pullbar" + (counts.total === 0 && counts.agendaDone === 0 ? " empty-range" : "")}>
-          {counts.total === 0 && counts.agendaDone === 0 ? (
-            <>📭 No Daily Log entries or completed agenda tasks in this period — try a wider date range.</>
-          ) : (
-            <>
-              🔗 From your Daily Log &amp; Agenda in this period:{" "}
-              <b>{counts.acc}</b> accomplishments
-              {counts.iss > 0 && (
-                <>
-                  , <b>{counts.iss}</b> issue{counts.iss > 1 ? "s" : ""}
-                </>
-              )}
-              {counts.notes > 0 && (
-                <>
-                  , <b>{counts.notes}</b> note{counts.notes > 1 ? "s" : ""}
-                </>
-              )}
-              {counts.agendaDone > 0 && (
-                <>
-                  , <b>{counts.agendaDone}</b> completed agenda task
-                  {counts.agendaDone > 1 ? "s" : ""}
-                </>
-              )}{" "}
-              will be pulled in. Click <b>Generate</b>.
-            </>
-          )}
+        <div
+          className={
+            "pullbar" +
+            (counts.total === 0 && counts.agendaDone === 0 ? " empty-range" : "")
+          }
+        >
+          {counts.total === 0 && counts.agendaDone === 0
+            ? "📭 " + t("wr.pullEmpty")
+            : "🔗 " + t("wr.pull", { n: counts.total + counts.agendaDone })}
         </div>
       )}
 
@@ -236,32 +216,30 @@ export default function WeeklyReport() {
         className="report-box"
         value={report}
         onChange={(e) => setReport(e.target.value)}
-        placeholder="Your generated report will appear here..."
+        placeholder={t("wr.reportPh")}
       />
       <div className="rbtns">
         <button className="btn" onClick={enhance}>
-          ✨ Enhance writing
+          ✨ {t("wr.enhance")}
         </button>
         <button className="btn" onClick={save}>
-          💾 Save report
+          💾 {t("wr.save")}
         </button>
         <button className="btn ghost" onClick={copy}>
-          📋 Copy
+          📋 {t("wr.copy")}
         </button>
         <button className="btn ghost" onClick={download}>
-          ⬇️ Download .txt
+          ⬇️ {t("wr.download")}
         </button>
       </div>
 
       {/* saved reports archive */}
       <div className="saved">
         <h2 className="sec" style={{ marginTop: 4 }}>
-          📚 Saved reports {db.reports.length > 0 && `(${db.reports.length})`}
+          📚 {t("wr.saved")} {db.reports.length > 0 && `(${db.reports.length})`}
         </h2>
         {db.reports.length === 0 ? (
-          <div className="empty">
-            No saved reports yet. Generate one above and click 💾 Save.
-          </div>
+          <div className="empty">{t("wr.noSaved")}</div>
         ) : (
           db.reports.map((r) => (
             <div className="savedrow" key={r.id}>
@@ -271,7 +249,7 @@ export default function WeeklyReport() {
                   <span className="saved-lang">{r.lang === "ar" ? "AR" : "EN"}</span>
                 </div>
                 <div className="saved-meta">
-                  Saved {new Date(r.ts).toLocaleDateString()} ·{" "}
+                  {t("wr.savedAt")} {new Date(r.ts).toLocaleDateString()} ·{" "}
                   {new Date(r.ts).toLocaleTimeString(undefined, {
                     hour: "2-digit",
                     minute: "2-digit",
@@ -280,7 +258,7 @@ export default function WeeklyReport() {
               </div>
               <div className="saved-acts">
                 <button className="btn ghost sm" onClick={() => openSaved(r.id)}>
-                  Open
+                  {t("c.open")}
                 </button>
                 <button
                   className="btn ghost sm"
@@ -289,7 +267,7 @@ export default function WeeklyReport() {
                     toast("Copied 📋");
                   }}
                 >
-                  Copy
+                  {t("c.copy")}
                 </button>
                 <button
                   className="iconbtn"

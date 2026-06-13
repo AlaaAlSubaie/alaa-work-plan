@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { StoreProvider } from "@/lib/store";
+import { LangProvider } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "Department Organizer",
@@ -16,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <StoreProvider>{children}</StoreProvider>
+        <LangProvider>
+          <StoreProvider>{children}</StoreProvider>
+        </LangProvider>
       </body>
     </html>
   );

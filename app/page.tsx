@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useStore } from "@/lib/store";
 import { ToastProvider, useToast } from "@/components/Toast";
+import { useLang } from "@/lib/i18n";
 import { DB } from "@/lib/types";
 import Dashboard from "@/components/Dashboard";
 import DailyLog from "@/components/DailyLog";
@@ -13,28 +14,47 @@ import WeeklyReport from "@/components/WeeklyReport";
 
 type Tab = "dashboard" | "log" | "agenda" | "projects" | "team" | "report";
 
+function LangToggle() {
+  const { lang, setLang } = useLang();
+  return (
+    <div className="langtoggle" role="group" aria-label="Language">
+      <button
+        className={"lt" + (lang === "en" ? " on" : "")}
+        onClick={() => setLang("en")}
+      >
+        EN
+      </button>
+      <button
+        className={"lt" + (lang === "ar" ? " on" : "")}
+        onClick={() => setLang("ar")}
+      >
+        ع
+      </button>
+    </div>
+  );
+}
+
 function Header() {
   const { db, setMeta } = useStore();
+  const { t } = useLang();
   return (
     <header className="app-header">
       <div className="head-row">
         <div className="logo">📋</div>
         <div>
-          <h1>Department Organizer</h1>
-          <div className="sub">
-            Log your day in seconds · Generate a polished weekly report · Track
-            every project
-          </div>
+          <h1>{t("app.title")}</h1>
+          <div className="sub">{t("app.sub")}</div>
         </div>
         <div className="head-spacer"></div>
+        <LangToggle />
         <div className="head-fields">
           <input
-            placeholder="Department name"
+            placeholder={t("app.dept")}
             value={db.meta.dept}
             onChange={(e) => setMeta({ dept: e.target.value })}
           />
           <input
-            placeholder="Your name"
+            placeholder={t("app.user")}
             value={db.meta.user}
             onChange={(e) => setMeta({ user: e.target.value })}
           />
@@ -47,6 +67,7 @@ function Header() {
 function Footer() {
   const { db, replaceAll } = useStore();
   const toast = useToast();
+  const { t } = useLang();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const exportBackup = () => {
@@ -95,15 +116,12 @@ function Footer() {
 
   return (
     <footer className="app-footer">
-      <span className="note">
-        💾 Your data is saved automatically in this browser on this computer.
-        Back it up regularly with Export — and use the same browser each time.
-      </span>
+      <span className="note">💾 {t("foot.note")}</span>
       <button className="btn ghost sm" onClick={exportBackup}>
-        ⬇️ Export backup
+        ⬇️ {t("foot.export")}
       </button>
       <button className="btn ghost sm" onClick={() => fileRef.current?.click()}>
-        ⬆️ Import backup
+        ⬆️ {t("foot.import")}
       </button>
       <input
         ref={fileRef}
@@ -129,6 +147,7 @@ function todayISO() {
 function Shell() {
   const [tab, setTab] = useState<Tab>("dashboard");
   const { db, loaded } = useStore();
+  const { t } = useLang();
 
   // Daily reminder notification (once per day, when the app is open & permission granted)
   useEffect(() => {
@@ -171,43 +190,43 @@ function Shell() {
             className={"tab" + (tab === "dashboard" ? " active" : "")}
             onClick={() => setTab("dashboard")}
           >
-            📊 Dashboard
+            📊 {t("tab.dashboard")}
           </button>
           <button
             className={"tab" + (tab === "log" ? " active" : "")}
             onClick={() => setTab("log")}
           >
-            📝 Daily Log
+            📝 {t("tab.log")}
           </button>
           <button
             className={"tab" + (tab === "agenda" ? " active" : "")}
             onClick={() => setTab("agenda")}
           >
-            📅 Agenda
+            📅 {t("tab.agenda")}
           </button>
           <button
             className={"tab" + (tab === "projects" ? " active" : "")}
             onClick={() => setTab("projects")}
           >
-            📂 Projects
+            📂 {t("tab.projects")}
           </button>
           <button
             className={"tab" + (tab === "team" ? " active" : "")}
             onClick={() => setTab("team")}
           >
-            👥 Team
+            👥 {t("tab.team")}
           </button>
           <button
             className={"tab" + (tab === "report" ? " active" : "")}
             onClick={() => setTab("report")}
           >
-            📄 Weekly Report
+            📄 {t("tab.report")}
           </button>
         </div>
 
         {!loaded ? (
           <div className="card">
-            <div className="empty">Loading your data…</div>
+            <div className="empty">{t("app.loading")}</div>
           </div>
         ) : tab === "dashboard" ? (
           <Dashboard />

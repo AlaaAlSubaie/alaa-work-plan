@@ -34,7 +34,7 @@ interface StoreCtx {
   db: DB;
   loaded: boolean;
   addLog: (text: string, cat: LogEntry["cat"]) => void;
-  editLog: (id: string, text: string) => void;
+  editLog: (id: string, text: string, cat?: LogEntry["cat"]) => void;
   delLog: (id: string) => void;
   addProject: (
     name: string,
@@ -131,12 +131,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
-  const editLog = useCallback((id: string, text: string) => {
-    setDb((d) => ({
-      ...d,
-      logs: d.logs.map((l) => (l.id === id ? { ...l, text: text.trim() } : l)),
-    }));
-  }, []);
+  const editLog = useCallback(
+    (id: string, text: string, cat?: LogEntry["cat"]) => {
+      setDb((d) => ({
+        ...d,
+        logs: d.logs.map((l) =>
+          l.id === id
+            ? { ...l, text: text.trim(), cat: cat ?? l.cat }
+            : l
+        ),
+      }));
+    },
+    []
+  );
 
   const delLog = useCallback((id: string) => {
     setDb((d) => ({ ...d, logs: d.logs.filter((l) => l.id !== id) }));

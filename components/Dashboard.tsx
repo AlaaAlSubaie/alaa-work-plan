@@ -5,6 +5,7 @@ import { useStore } from "@/lib/store";
 import { COLUMNS, TaskStatus } from "@/lib/types";
 import { weekToWednesday } from "@/lib/report";
 import { useToast } from "./Toast";
+import { useLang } from "@/lib/i18n";
 
 function iso(d: Date) {
   const z = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
@@ -53,6 +54,7 @@ function avatarColor(name: string) {
 export default function Dashboard() {
   const { db } = useStore();
   const toast = useToast();
+  const { t } = useLang();
   const [perm, setPerm] = useState<NotificationPermission | "unsupported">("default");
 
   useEffect(() => {
@@ -89,10 +91,12 @@ export default function Dashboard() {
   // this week's achievements (current reporting week)
   const wk = weekToWednesday();
   const f = new Date(wk.from + "T00:00:00").getTime();
-  const t = new Date(wk.to + "T23:59:59").getTime();
+  const tEnd = new Date(wk.to + "T23:59:59").getTime();
   const weekAch = db.logs.filter(
     (e) =>
-      e.ts >= f && e.ts <= t && ["Achievement", "Task", "Meeting"].includes(e.cat)
+      e.ts >= f &&
+      e.ts <= tEnd &&
+      ["Achievement", "Task", "Meeting"].includes(e.cat)
   ).length;
 
   // reminders
@@ -125,25 +129,22 @@ export default function Dashboard() {
   return (
     <>
       <div className="card">
-        <h2 className="sec">📊 Department dashboard</h2>
-        <p className="hint">
-          A live overview of everything — projects, tasks, team workload, and your
-          achievements this week.
-        </p>
+        <h2 className="sec">📊 {t("db.title")}</h2>
+        <p className="hint">{t("db.hint")}</p>
         <div className="notifbar">
           {perm === "granted" ? (
-            <span className="notif-on">🔔 Reminders are on</span>
+            <span className="notif-on">🔔 {t("db.notifOn")}</span>
           ) : perm === "unsupported" ? (
             <span className="hint" style={{ margin: 0 }}>
-              🔕 Notifications aren&apos;t supported on this browser.
+              🔕 {t("db.notifUnsupported")}
             </span>
           ) : (
             <>
               <button className="btn sm" onClick={enableNotifs}>
-                🔔 Enable reminders
+                🔔 {t("db.enable")}
               </button>
               <span className="hint" style={{ margin: 0 }}>
-                Get a daily alert for overdue projects &amp; today&apos;s tasks.
+                {t("db.enableHint")}
               </span>
             </>
           )}
@@ -151,28 +152,30 @@ export default function Dashboard() {
         <div className="kpis">
           <div className="kpi">
             <div className="num">{projects.length}</div>
-            <div className="lbl">📂 Projects</div>
+            <div className="lbl">📂 {t("db.kProjects")}</div>
             <div className="sub">
-              {stageCounts.find((s) => s.key === "Completed")?.count || 0} completed
+              {t("db.kCompleted", {
+                n: stageCounts.find((s) => s.key === "Completed")?.count || 0,
+              })}
             </div>
           </div>
           <div className="kpi">
             <div className="num" style={{ color: "var(--brand)" }}>
               {activeTasks}
             </div>
-            <div className="lbl">✅ Active tasks</div>
-            <div className="sub">{countBy("Completed")} done</div>
+            <div className="lbl">✅ {t("db.kActive")}</div>
+            <div className="sub">{t("db.kDone", { n: countBy("Completed") })}</div>
           </div>
           <div className="kpi">
             <div className="num">{db.employees.length}</div>
-            <div className="lbl">👥 Team members</div>
+            <div className="lbl">👥 {t("db.kTeam")}</div>
           </div>
           <div className="kpi">
             <div className="num" style={{ color: "var(--green)" }}>
               {weekAch}
             </div>
-            <div className="lbl">🏆 Achievements</div>
-            <div className="sub">this week</div>
+            <div className="lbl">🏆 {t("db.kAch")}</div>
+            <div className="sub">{t("db.kThisWeek")}</div>
           </div>
           <div className="kpi">
             <div
@@ -181,8 +184,8 @@ export default function Dashboard() {
             >
               {reminders.length}
             </div>
-            <div className="lbl">🔔 Reminders</div>
-            <div className="sub">overdue / due soon</div>
+            <div className="lbl">🔔 {t("db.kReminders")}</div>
+            <div className="sub">{t("db.kRemSub")}</div>
           </div>
           <div className="kpi">
             <div className="num">
@@ -191,22 +194,22 @@ export default function Dashboard() {
                 /{todayItems.length}
               </span>
             </div>
-            <div className="lbl">📅 Today&apos;s agenda</div>
-            <div className="sub">{todayPct}% done</div>
+            <div className="lbl">📅 {t("db.kAgenda")}</div>
+            <div className="sub">{t("db.kPctDone", { n: todayPct })}</div>
           </div>
         </div>
       </div>
 
       <div className="card">
-        <h2 className="sec">📂 Projects by stage</h2>
+        <h2 className="sec">📂 {t("db.byStage")}</h2>
         {projects.length === 0 ? (
-          <div className="empty">No projects yet.</div>
+          <div className="empty">{t("db.noProjects")}</div>
         ) : (
           stageCounts.map((s) => (
             <div className="stagebar" key={s.key}>
               <span className="sb-label">
                 <span className={"dot d-" + s.key}></span>
-                {s.label}
+                {t("stage." + s.key)}
               </span>
               <div className="sb-track">
                 <div
@@ -222,14 +225,12 @@ export default function Dashboard() {
 
       {reminders.length > 0 && (
         <div className="card">
-          <h2 className="sec">🔔 Needs attention</h2>
+          <h2 className="sec">🔔 {t("db.attention")}</h2>
           {reminders.map(({ p, level }) => (
             <div className="rem-row" key={p.id}>
               <span className={"rem-dot lvl-" + level} />
               <span className="rem-name">{p.name}</span>
-              <span className="rem-stage">
-                {COLUMNS.find((c) => c.key === p.status)?.label}
-              </span>
+              <span className="rem-stage">{t("stage." + p.status)}</span>
               <span className={"rem-when lvl-" + level}>
                 {shortDate(p.due)} · {dueText(p.due)}
               </span>
@@ -239,11 +240,9 @@ export default function Dashboard() {
       )}
 
       <div className="card">
-        <h2 className="sec">👥 Team workload</h2>
+        <h2 className="sec">👥 {t("db.teamWorkload")}</h2>
         {db.employees.length === 0 ? (
-          <div className="empty">
-            No team members yet. Add them in 📂 Projects → 👥 Manage team.
-          </div>
+          <div className="empty">{t("tm.noMembers")}</div>
         ) : (
           db.employees.map((e) => {
             const tasks = allTasks.filter((tk) => tk.assignee === e.id);
@@ -260,9 +259,9 @@ export default function Dashboard() {
                 </span>
                 <span className="teamrow-name">{e.name}</span>
                 <span className="teamrow-stats">
-                  <span className="stat ip">{ip} in progress</span>
-                  <span className="stat pend">{pend} pending</span>
-                  <span className="stat done">{done} done</span>
+                  <span className="stat ip">{t("tm.inProgress", { n: ip })}</span>
+                  <span className="stat pend">{t("tm.pending", { n: pend })}</span>
+                  <span className="stat done">{t("tm.done", { n: done })}</span>
                 </span>
               </div>
             );
@@ -271,15 +270,13 @@ export default function Dashboard() {
       </div>
 
       <div className="card">
-        <h2 className="sec">🏆 My recent achievements</h2>
+        <h2 className="sec">🏆 {t("db.recentAch")}</h2>
         {recentAch.length === 0 ? (
-          <div className="empty">
-            Nothing logged yet — add achievements in 📝 Daily Log.
-          </div>
+          <div className="empty">{t("db.noAch")}</div>
         ) : (
           recentAch.map((e) => (
             <div className="ach" key={e.id}>
-              <span className={"badge b-" + e.cat}>{e.cat}</span>
+              <span className={"badge b-" + e.cat}>{t("cat." + e.cat)}</span>
               <span className="ach-text">{e.text}</span>
               <span className="ach-date">{fmtDate(e.ts)}</span>
             </div>

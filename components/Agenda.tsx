@@ -2,6 +2,7 @@
 
 import { useState, useMemo, KeyboardEvent } from "react";
 import { useStore } from "@/lib/store";
+import { useLang } from "@/lib/i18n";
 
 function iso(d: Date) {
   const z = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
@@ -52,6 +53,7 @@ export default function Agenda() {
     delAgenda,
     setAgendaDate,
   } = useStore();
+  const { t } = useLang();
   const [date, setDate] = useState(todayISO());
   const [text, setText] = useState("");
   const [time, setTime] = useState("");
@@ -136,17 +138,13 @@ export default function Agenda() {
 
   return (
     <div className="card">
-      <h2 className="sec">📅 Daily agenda</h2>
-      <p className="hint">
-        Plan the work you intend to do, then check items off as you finish them.
-        Unfinished tasks from earlier days are carried over automatically.
-        Switch between <b>Week</b> and <b>Month</b> to track your progress.
-      </p>
+      <h2 className="sec">📅 {t("ag.title")}</h2>
+      <p className="hint">{t("ag.hint")}</p>
 
       {/* date navigation + view toggle */}
       <div className="daynav">
         <button className="btn ghost sm" onClick={() => setDate(addDays(date, -1))}>
-          ◀ Prev
+          ◀ {t("ag.prev")}
         </button>
         <input
           type="date"
@@ -155,14 +153,14 @@ export default function Agenda() {
           onChange={(e) => setDate(e.target.value || todayISO())}
         />
         <button className="btn ghost sm" onClick={() => setDate(addDays(date, 1))}>
-          Next ▶
+          {t("ag.next")} ▶
         </button>
         <button
           className="btn ghost sm"
           onClick={() => setDate(todayISO())}
           disabled={date === todayISO()}
         >
-          Today
+          {t("c.today")}
         </button>
         <span className="daynav-spacer" />
         <div className="viewtoggle">
@@ -170,13 +168,13 @@ export default function Agenda() {
             className={"vt" + (view === "week" ? " on" : "")}
             onClick={() => setView("week")}
           >
-            Week
+            {t("ag.week")}
           </button>
           <button
             className={"vt" + (view === "month" ? " on" : "")}
             onClick={() => setView("month")}
           >
-            Month
+            {t("ag.month")}
           </button>
         </div>
       </div>
@@ -267,12 +265,12 @@ export default function Agenda() {
       {showCarry && (
         <div className="carry">
           <div className="carry-head">
-            <span>⏰ Carried over — {overdue.length} unfinished from earlier days</span>
+            <span>⏰ {t("ag.carried", { n: overdue.length })}</span>
             <button
               className="btn ghost sm"
               onClick={() => overdue.forEach((a) => setAgendaDate(a.id, date))}
             >
-              Move all to this day
+              {t("ag.moveAll")}
             </button>
           </div>
           {overdue.map((a) => (
@@ -318,7 +316,7 @@ export default function Agenda() {
               <div className="agbar-fill" style={{ width: pct + "%" }} />
             </div>
             <span className="agpct">
-              {doneCount}/{total} done · {pct}%
+              {doneCount}/{total} {t("ag.done")} · {pct}%
             </span>
           </div>
         )}
@@ -338,16 +336,16 @@ export default function Agenda() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={onKey}
-          placeholder="Add a task for this day…"
+          placeholder={t("ag.addTask")}
         />
         <button className="btn" onClick={submit}>
-          ＋ Add
+          ＋ {t("c.add")}
         </button>
       </div>
 
       {/* items */}
       {items.length === 0 ? (
-        <div className="empty">Nothing planned for this day yet ✍️</div>
+        <div className="empty">{t("ag.empty")}</div>
       ) : (
         <div className="aglist">
           {items.map((a) => (

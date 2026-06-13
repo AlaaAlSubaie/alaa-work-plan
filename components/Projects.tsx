@@ -4,10 +4,11 @@ import { useState, DragEvent, KeyboardEvent } from "react";
 import { useStore } from "@/lib/store";
 import { COLUMNS, Status, Project, TaskStatus } from "@/lib/types";
 import { useToast } from "./Toast";
+import { useLang } from "@/lib/i18n";
 
 const TASK_ORDER: TaskStatus[] = ["Pending", "Progress", "Completed"];
-const taskPillLabel = (s: TaskStatus) =>
-  s === "Progress" ? "In Progress" : s === "Completed" ? "Done" : "Pending";
+const pillKey = (s: TaskStatus) =>
+  s === "Progress" ? "ts.Progress" : s === "Completed" ? "ts.Done" : "ts.Pending";
 
 /* ---------- avatar helpers ---------- */
 function initials(name: string) {
@@ -60,6 +61,7 @@ function ProjectDetail({ p }: { p: Project }) {
     delProjectIssue,
     toggleAssignee,
   } = useStore();
+  const { t } = useLang();
   const [task, setTask] = useState("");
   const [taskWho, setTaskWho] = useState("");
   const [issue, setIssue] = useState("");
@@ -91,11 +93,9 @@ function ProjectDetail({ p }: { p: Project }) {
     <div className="psub">
       {/* team on this project — pick from a menu, show only those selected */}
       <div className="psub-sec">
-        <div className="psub-title">👥 Team on this project</div>
+        <div className="psub-title">👥 {t("pr.teamOnProject")}</div>
         {db.employees.length === 0 ? (
-          <div className="psub-empty">
-            Add team members in the “Manage team” panel above first.
-          </div>
+          <div className="psub-empty">{t("pr.addTeamFirst")}</div>
         ) : (
           <>
             {available.length > 0 && (
@@ -106,7 +106,7 @@ function ProjectDetail({ p }: { p: Project }) {
                   if (e.target.value) toggleAssignee(p.id, e.target.value);
                 }}
               >
-                <option value="">＋ Add a member…</option>
+                <option value="">{t("pr.addMember")}</option>
                 {available.map((e) => (
                   <option key={e.id} value={e.id}>
                     {e.name}
@@ -116,9 +116,7 @@ function ProjectDetail({ p }: { p: Project }) {
               </select>
             )}
             {members.length === 0 ? (
-              <div className="psub-empty">
-                No members on this project yet — add from the menu.
-              </div>
+              <div className="psub-empty">{t("pr.noMembers")}</div>
             ) : (
               <div className="assign-chips">
                 {members.map((e) => (
@@ -147,7 +145,7 @@ function ProjectDetail({ p }: { p: Project }) {
 
       {/* target date */}
       <div className="psub-sec">
-        <div className="psub-title">🗓️ Target date (reminder)</div>
+        <div className="psub-title">🗓️ {t("pr.targetDate")}</div>
         <div className="psub-date">
           <input
             type="date"
@@ -167,7 +165,7 @@ function ProjectDetail({ p }: { p: Project }) {
 
       {/* tasks */}
       <div className="psub-sec">
-        <div className="psub-title">✅ Tasks (assign &amp; track)</div>
+        <div className="psub-title">✅ {t("pr.tasks")}</div>
         <div className="psub-add wrap">
           <input
             value={task}
@@ -175,7 +173,7 @@ function ProjectDetail({ p }: { p: Project }) {
             onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
               if (e.key === "Enter") addTask();
             }}
-            placeholder="Add a task…"
+            placeholder={t("pr.addTaskPh")}
           />
           <select
             className="taskassign"
@@ -183,7 +181,7 @@ function ProjectDetail({ p }: { p: Project }) {
             onChange={(e) => setTaskWho(e.target.value)}
             title="Assign to"
           >
-            <option value="">— who —</option>
+            <option value="">{t("c.who")}</option>
             {members.map((e) => (
               <option key={e.id} value={e.id}>
                 {e.name}
@@ -195,31 +193,31 @@ function ProjectDetail({ p }: { p: Project }) {
           </button>
         </div>
         {p.tasks.length === 0 ? (
-          <div className="psub-empty">No tasks yet.</div>
+          <div className="psub-empty">{t("pr.noTasks")}</div>
         ) : (
-          p.tasks.map((t) => (
-            <div key={t.id} className="taskrow">
+          p.tasks.map((tk) => (
+            <div key={tk.id} className="taskrow">
               <button
-                className={"taskpill tp-" + t.status}
-                onClick={() => cycleTask(t.id, t.status)}
+                className={"taskpill tp-" + tk.status}
+                onClick={() => cycleTask(tk.id, tk.status)}
                 title="Click to change status"
               >
-                {taskPillLabel(t.status)}
+                {t(pillKey(tk.status))}
               </button>
               <span
-                className={"subtext" + (t.status === "Completed" ? " done" : "")}
+                className={"subtext" + (tk.status === "Completed" ? " done" : "")}
               >
-                {t.text}
+                {tk.text}
               </span>
               <select
                 className="taskassign"
-                value={t.assignee}
+                value={tk.assignee}
                 onChange={(e) =>
-                  setProjectTaskAssignee(p.id, t.id, e.target.value)
+                  setProjectTaskAssignee(p.id, tk.id, e.target.value)
                 }
               >
-                <option value="">— who —</option>
-                {taskOptions(t.assignee).map((e) => (
+                <option value="">{t("c.who")}</option>
+                {taskOptions(tk.assignee).map((e) => (
                   <option key={e.id} value={e.id}>
                     {e.name}
                   </option>
@@ -228,7 +226,7 @@ function ProjectDetail({ p }: { p: Project }) {
               <button
                 className="iconbtn"
                 title="Delete"
-                onClick={() => delProjectTask(p.id, t.id)}
+                onClick={() => delProjectTask(p.id, tk.id)}
               >
                 🗑️
               </button>
@@ -239,7 +237,7 @@ function ProjectDetail({ p }: { p: Project }) {
 
       {/* issues */}
       <div className="psub-sec">
-        <div className="psub-title">⚠️ Issues to follow</div>
+        <div className="psub-title">⚠️ {t("pr.issues")}</div>
         <div className="psub-add">
           <input
             value={issue}
@@ -250,7 +248,7 @@ function ProjectDetail({ p }: { p: Project }) {
                 setIssue("");
               }
             }}
-            placeholder="Add an issue…"
+            placeholder={t("pr.addIssuePh")}
           />
           <button
             className="btn sm"
@@ -263,7 +261,7 @@ function ProjectDetail({ p }: { p: Project }) {
           </button>
         </div>
         {p.issues.length === 0 ? (
-          <div className="psub-empty">No issues logged.</div>
+          <div className="psub-empty">{t("pr.noIssues")}</div>
         ) : (
           p.issues.map((i) => (
             <div key={i.id} className={"subrow issue" + (i.resolved ? " done" : "")}>
@@ -300,6 +298,7 @@ export default function Projects() {
     delEmployee,
   } = useStore();
   const toast = useToast();
+  const { t } = useLang();
   const [name, setName] = useState("");
   const [note, setNote] = useState("");
   const [status, setStatus] = useState<Status>("Upcoming");
@@ -349,20 +348,20 @@ export default function Projects() {
 
   return (
     <div className="card">
-      <h2 className="sec">➕ Add a project</h2>
+      <h2 className="sec">➕ {t("pr.addProject")}</h2>
       <div className="addproj">
         <input
           className="pn"
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && add()}
-          placeholder="Project name"
+          placeholder={t("pr.name")}
         />
         <input
           className="pd"
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="Short note / detail (optional)"
+          placeholder={t("pr.note")}
         />
         <input
           type="date"
@@ -374,20 +373,15 @@ export default function Projects() {
         <select value={status} onChange={(e) => setStatus(e.target.value as Status)}>
           {COLUMNS.map((c) => (
             <option key={c.key} value={c.key}>
-              {c.label}
+              {t("stage." + c.key)}
             </option>
           ))}
         </select>
         <button className="btn" onClick={add}>
-          Add project
+          {t("pr.addBtn")}
         </button>
       </div>
-      <p className="hint">
-        Swipe the board sideways to see all stages. Use the ◀ ▶ buttons on a
-        card to move it between stages. Set a <b>target date</b> to get
-        reminders. Click <b>Details</b> to follow its tasks, issues and assign
-        team members — all in one place.
-      </p>
+      <p className="hint">{t("pr.hint")}</p>
 
       {/* manage team */}
       <div className="teampanel">
@@ -395,7 +389,7 @@ export default function Projects() {
           className="teamtoggle"
           onClick={() => setShowTeam((s) => !s)}
         >
-          {showTeam ? "▾" : "▸"} 👥 Manage team ({db.employees.length})
+          {showTeam ? "▾" : "▸"} 👥 {t("pr.manageTeam")} ({db.employees.length})
         </button>
         {showTeam && (
           <div className="teambody">
@@ -410,12 +404,12 @@ export default function Projects() {
                     setEmpRole("");
                   }
                 }}
-                placeholder="Employee name"
+                placeholder={t("pr.empName")}
               />
               <input
                 value={empRole}
                 onChange={(e) => setEmpRole(e.target.value)}
-                placeholder="Role (optional)"
+                placeholder={t("pr.empRole")}
               />
               <button
                 className="btn sm"
@@ -429,11 +423,11 @@ export default function Projects() {
                   setEmpRole("");
                 }}
               >
-                ＋ Add
+                ＋ {t("c.add")}
               </button>
             </div>
             {db.employees.length === 0 ? (
-              <div className="psub-empty">No team members yet.</div>
+              <div className="psub-empty">{t("pr.noTeam")}</div>
             ) : (
               <div className="emplist">
                 {db.employees.map((e) => (
@@ -467,12 +461,12 @@ export default function Projects() {
       {/* reminders banner */}
       {reminders.length > 0 && (
         <div className="reminders">
-          <div className="rem-head">🔔 Reminders — {reminders.length} project(s) need attention</div>
+          <div className="rem-head">🔔 {t("rem.head", { n: reminders.length })}</div>
           {reminders.map(({ p, info }) => (
             <div key={p.id} className="rem-row">
               <span className={"rem-dot lvl-" + info.level} />
               <span className="rem-name">{p.name}</span>
-              <span className="rem-stage">{COLUMNS.find((c) => c.key === p.status)?.label}</span>
+              <span className="rem-stage">{t("stage." + p.status)}</span>
               <span className={"rem-when lvl-" + info.level}>
                 {shortDate(p.due)} · {info.txt}
               </span>
@@ -482,7 +476,7 @@ export default function Projects() {
       )}
 
       <div className="board board-6">
-        {COLUMNS.map(({ key, label }) => {
+        {COLUMNS.map(({ key }) => {
           const items = db.projects
             .filter((p) => p.status === key)
             .sort((a, b) => {
@@ -504,7 +498,7 @@ export default function Projects() {
             >
               <div className="colhead">
                 <span className={"dot d-" + key}></span>
-                {label}
+                {t("stage." + key)}
                 <span className="count">{items.length}</span>
               </div>
               {items.map((p) => {
@@ -580,7 +574,8 @@ export default function Projects() {
                           setExpanded((e) => ({ ...e, [p.id]: !e[p.id] }))
                         }
                       >
-                        {isOpen ? "▾ Details" : "▸ Details"}
+                        {isOpen ? "▾ " : "▸ "}
+                        {t("pr.details")}
                       </button>
                       <span>
                         <button
