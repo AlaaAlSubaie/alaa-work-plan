@@ -1,0 +1,337 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useLang } from "@/lib/i18n";
+
+const KEY = "aw-auth";
+
+function hashCode(s: string) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = (h * 33) ^ s.charCodeAt(i);
+  return (h >>> 0).toString(16);
+}
+function confirm0(msg: string) {
+  return typeof window !== "undefined" ? window.confirm(msg) : false;
+}
+
+const ICONS: Record<string, string> = {
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  lock: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+  eyeOff:
+    '<path d="M9.9 4.2A10.9 10.9 0 0 1 12 4c6.5 0 10 7 10 7a18 18 0 0 1-3.2 4M6.6 6.6A18 18 0 0 0 2 11s3.5 7 10 7a10.9 10.9 0 0 0 3.4-.5"/><path d="m3 3 18 18"/><path d="M9.5 9.5a3 3 0 0 0 4.2 4.2"/>',
+  arrowRight: '<path d="M5 12h14M12 5l7 7-7 7"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  report:
+    '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/>',
+  sparkles: '<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/>',
+};
+function Icon({ name, size = 18, sw = 2 }: { name: string; size?: number; sw?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={sw}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      dangerouslySetInnerHTML={{ __html: ICONS[name] || "" }}
+    />
+  );
+}
+
+// decorative demo tasks for the brand "Today" card
+const TASKS = {
+  en: [
+    "Deploy staging pipeline",
+    "Approve audit-log PR",
+    "Follow up on licensing",
+    "Confirm rollback plan",
+    "Draft weekly report",
+  ],
+  ar: [
+    "طلّع خط النشر التجريبي",
+    "اعتمد طلب سحب سجل التدقيق",
+    "تابع موضوع الترخيص",
+    "ثبّت خطة التراجع",
+    "جهّز التقرير الأسبوعي",
+  ],
+};
+const WHOS = {
+  en: ["SK", "OD", "AM", "LH", "AM"],
+  ar: ["س.خ", "ع.د", "ع.م", "ل.ه", "ع.م"],
+};
+
+interface Stored {
+  name: string;
+  hash: string;
+}
+
+export default function Lock({ onUnlock }: { onUnlock: (keep: boolean) => void }) {
+  const { t, lang, setLang } = useLang();
+  const [ready, setReady] = useState(false);
+  const [stored, setStored] = useState<Stored | null>(null);
+  const [name, setName] = useState("");
+  const [pass, setPass] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [show, setShow] = useState(false);
+  const [keep, setKeep] = useState(true);
+  const [err, setErr] = useState("");
+  const [doneN, setDoneN] = useState(0);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) setStored(JSON.parse(raw));
+    } catch {
+      /* ignore */
+    }
+    setReady(true);
+  }, []);
+
+  const tasks = lang === "ar" ? TASKS.ar : TASKS.en;
+  const whos = lang === "ar" ? WHOS.ar : WHOS.en;
+  const TOTAL = tasks.length;
+
+  useEffect(() => {
+    const id = setInterval(() => setDoneN((n) => (n >= TOTAL ? 0 : n + 1)), 1300);
+    return () => clearInterval(id);
+  }, [TOTAL]);
+
+  if (!ready) return <div className="login-stage" />;
+
+  const isSetup = !stored;
+  const pct = Math.round((doneN / TOTAL) * 100);
+  const C = 2 * Math.PI * 21;
+
+  const onMove = (e: React.MouseEvent) => {
+    const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    setTilt({
+      x: ((e.clientY - r.top) / r.height - 0.5) * -7,
+      y: ((e.clientX - r.left) / r.width - 0.5) * 9,
+    });
+  };
+
+  const submit = () => {
+    setErr("");
+    if (isSetup) {
+      if (!name.trim()) return setErr(t("lock.errName"));
+      if (pass.length < 4) return setErr(t("lock.errShort"));
+      if (pass !== confirm) return setErr(t("lock.errMatch"));
+      localStorage.setItem(KEY, JSON.stringify({ name: name.trim(), hash: hashCode(pass) }));
+      onUnlock(false);
+    } else {
+      if (hashCode(pass) === stored!.hash) onUnlock(keep);
+      else setErr(t("lock.errWrong"));
+    }
+  };
+
+  const reset = () => {
+    if (confirm0(t("lock.resetConfirm"))) {
+      localStorage.removeItem(KEY);
+      localStorage.removeItem("aw-keep");
+      setStored(null);
+      setPass("");
+      setConfirm("");
+      setErr("");
+    }
+  };
+
+  const title = isSetup
+    ? t("lock.setupTitle")
+    : stored?.name
+    ? t("lock.hello", { name: stored.name })
+    : t("lock.welcome");
+
+  return (
+    <div className="login-stage">
+      {/* brand — warm editorial canvas */}
+      <div className="brand" onMouseMove={onMove} onMouseLeave={() => setTilt({ x: 0, y: 0 })}>
+        <div className="brand__top">
+          <div className="brand__logo">
+            <span className="brand__mark">📋</span>
+            <span>Alaa Work Plan</span>
+          </div>
+          <span className="brand__vol">{t("login.vol")}</span>
+        </div>
+
+        <div className="scene">
+          <div className="eyebrow">
+            <span className="tag">{t("login.tag")}</span>
+            <span className="rule" />
+          </div>
+          <h2 className="scene__head">
+            {t("login.headLead")} <em>{t("login.headAccent")}.</em>
+          </h2>
+          <p className="scene__sub">{t("login.tagline")}</p>
+
+          <div
+            className="float"
+            style={{ transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)` }}
+          >
+            <div className="paper" style={{ transform: "translateZ(40px)" }}>
+              <div className="paper__top">
+                <div>
+                  <div className="paper__title">{t("login.cardToday")}</div>
+                  <div className="paper__sub">{t("login.cardDate")}</div>
+                </div>
+                <div className="ring">
+                  <svg width="50" height="50">
+                    <circle cx="25" cy="25" r="21" fill="none" stroke="var(--border-default)" strokeWidth="4" />
+                    <circle
+                      cx="25"
+                      cy="25"
+                      r="21"
+                      fill="none"
+                      stroke="var(--accent)"
+                      strokeWidth="4"
+                      strokeLinecap="round"
+                      strokeDasharray={C}
+                      strokeDashoffset={C * (1 - doneN / TOTAL)}
+                      style={{ transition: "stroke-dashoffset .6s cubic-bezier(.16,1,.3,1)" }}
+                    />
+                  </svg>
+                  <span className="ring__num">{pct}%</span>
+                </div>
+              </div>
+              <div className="tlist">
+                {tasks.map((tx, i) => (
+                  <div key={i} className={"titem" + (i < doneN ? " done" : "")}>
+                    <span className="box">
+                      <Icon name="check" size={12} sw={3.6} />
+                    </span>
+                    <span className="tx">{tx}</span>
+                    <span className="who">{whos[i]}</span>
+                  </div>
+                ))}
+              </div>
+              {doneN >= TOTAL && (
+                <span className="chip chip--report pop" style={{ transform: "translateZ(80px)" }}>
+                  <span className="ic">
+                    <Icon name="report" size={16} />
+                  </span>
+                  {t("login.report")}
+                </span>
+              )}
+              <span className="chip chip--streak" style={{ transform: "translateZ(70px)" }}>
+                <span className="ic">
+                  <Icon name="sparkles" size={16} />
+                </span>
+                {t("login.streak")}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="brand__foot">{t("foot.copyright")}</div>
+      </div>
+
+      {/* form side */}
+      <div className="form-side">
+        <div className="toprow">
+          <div className="langtoggle">
+            <button className={"lt" + (lang === "en" ? " on" : "")} onClick={() => setLang("en")}>
+              EN
+            </button>
+            <button className={"lt" + (lang === "ar" ? " on" : "")} onClick={() => setLang("ar")}>
+              ع
+            </button>
+          </div>
+        </div>
+
+        <div className="login-card">
+          <p className="login-label">{t("login.label")}</p>
+          <h1>{title}</h1>
+          <p className="sub">{isSetup ? t("lock.setupSub") : t("login.sub")}</p>
+
+          {isSetup && (
+            <label className="lk-field">
+              <span className="lk-label">{t("app.user")}</span>
+              <span className="lk-wrap">
+                <span className="lk-lead">
+                  <Icon name="user" />
+                </span>
+                <input
+                  className="lk-input"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={t("app.user")}
+                />
+              </span>
+            </label>
+          )}
+
+          <label className="lk-field">
+            <span className="lk-label">{t("lock.passcode")}</span>
+            <span className="lk-wrap">
+              <span className="lk-lead">
+                <Icon name="lock" />
+              </span>
+              <input
+                className="lk-input"
+                type={show ? "text" : "password"}
+                inputMode="numeric"
+                value={pass}
+                autoFocus={!isSetup}
+                onChange={(e) => setPass(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !isSetup) submit();
+                }}
+                placeholder={t("lock.passcode")}
+              />
+              <button type="button" className="lk-eye" onClick={() => setShow((s) => !s)} aria-label="toggle">
+                <Icon name={show ? "eyeOff" : "eye"} />
+              </button>
+            </span>
+          </label>
+
+          {isSetup && (
+            <label className="lk-field">
+              <span className="lk-label">{t("lock.confirm")}</span>
+              <span className="lk-wrap">
+                <span className="lk-lead">
+                  <Icon name="lock" />
+                </span>
+                <input
+                  className="lk-input"
+                  type={show ? "text" : "password"}
+                  inputMode="numeric"
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") submit();
+                  }}
+                  placeholder={t("lock.confirm")}
+                />
+              </span>
+            </label>
+          )}
+
+          {!isSetup && (
+            <div className="row-between">
+              <label className="lk-keep">
+                <input type="checkbox" checked={keep} onChange={(e) => setKeep(e.target.checked)} />
+                {t("login.keep")}
+              </label>
+              <button className="lk-link" onClick={reset}>
+                {t("lock.forgot")}
+              </button>
+            </div>
+          )}
+
+          {err && <div className="lock-err">{err}</div>}
+
+          <button className="btn lk-submit" onClick={submit}>
+            {isSetup ? t("lock.create") : t("lock.unlock")}
+            <Icon name="arrowRight" />
+          </button>
+
+          <p className="lk-foot-mobile">{t("foot.copyright")}</p>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -165,7 +165,7 @@ function ProjectDetail({ p }: { p: Project }) {
               className="btn ghost sm"
               onClick={() => setProjectDue(p.id, "")}
             >
-              Clear
+              {t("c.clear")}
             </button>
           )}
         </div>
@@ -361,14 +361,14 @@ export default function Projects() {
 
   const add = () => {
     if (!name.trim()) {
-      toast("Enter a project name");
+      toast(t("toast.enterProjName"));
       return;
     }
     addProject(name, note, status, due);
     setName("");
     setNote("");
     setDue("");
-    toast("Project added");
+    toast(t("toast.projectAdded"));
   };
 
   const move = (id: string, dir: number) => {
@@ -462,7 +462,7 @@ export default function Projects() {
                 className="btn sm"
                 onClick={() => {
                   if (!empName.trim()) {
-                    toast("Enter a name");
+                    toast(t("toast.enterName"));
                     return;
                   }
                   addEmployee(empName, empRole);
@@ -643,9 +643,9 @@ export default function Projects() {
                           className="iconbtn"
                           title="Edit"
                           onClick={() => {
-                            const n = prompt("Project name:", p.name);
+                            const n = prompt(t("dlg.projName"), p.name);
                             if (n === null) return;
-                            const d = prompt("Note:", p.note || "");
+                            const d = prompt(t("dlg.note"), p.note || "");
                             editProject(p.id, n, d || "");
                           }}
                         >
@@ -655,7 +655,7 @@ export default function Projects() {
                           className="iconbtn"
                           title="Delete"
                           onClick={() => {
-                            if (confirm("Delete this project?")) delProject(p.id);
+                            if (confirm(t("dlg.delProject"))) delProject(p.id);
                           }}
                         >
                           🗑️

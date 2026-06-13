@@ -5,6 +5,7 @@ import { useStore } from "@/lib/store";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { useLang } from "@/lib/i18n";
 import { DB } from "@/lib/types";
+import Lock from "@/components/Lock";
 import Dashboard from "@/components/Dashboard";
 import DailyLog from "@/components/DailyLog";
 import Agenda from "@/components/Agenda";
@@ -78,7 +79,7 @@ function Footer() {
     a.href = URL.createObjectURL(blob);
     a.download = "department-backup.json";
     a.click();
-    toast("Backup downloaded");
+    toast(t("toast.backupDown"));
   };
 
   const importBackup = (file: File) => {
@@ -107,9 +108,9 @@ function Footer() {
           employees: d.employees ?? [],
           meta: d.meta ?? { dept: "", user: "" },
         });
-        toast("Backup restored");
+        toast(t("toast.backupRestored"));
       } catch {
-        toast("Invalid file");
+        toast(t("toast.invalidFile"));
       }
     };
     reader.readAsText(file);
@@ -135,6 +136,7 @@ function Footer() {
           e.target.value = "";
         }}
       />
+      <div className="app-copyright">{t("foot.copyright")}</div>
     </footer>
   );
 }
@@ -147,12 +149,22 @@ function todayISO() {
 
 function Shell() {
   const [tab, setTab] = useState<Tab>("dashboard");
+  const [unlocked, setUnlocked] = useState(false);
   const { db, loaded } = useStore();
   const { t } = useLang();
 
+  // "keep me signed in" — skip the lock if previously chosen
+  useEffect(() => {
+    try {
+      if (localStorage.getItem("aw-keep") === "1") setUnlocked(true);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   // Daily reminder notification (once per day, when the app is open & permission granted)
   useEffect(() => {
-    if (!loaded) return;
+    if (!loaded || !unlocked) return;
     if (typeof window === "undefined" || !("Notification" in window)) return;
     if (Notification.permission !== "granted") return;
 
@@ -180,7 +192,21 @@ function Shell() {
       new Notification("🔔 Department reminders", { body: parts.join(" · ") });
       localStorage.setItem(key, "1");
     }
-  }, [loaded, db]);
+  }, [loaded, db, unlocked]);
+
+  if (!unlocked)
+    return (
+      <Lock
+        onUnlock={(keep) => {
+          try {
+            if (keep) localStorage.setItem("aw-keep", "1");
+          } catch {
+            /* ignore */
+          }
+          setUnlocked(true);
+        }}
+      />
+    );
 
   return (
     <>
@@ -230,7 +256,7 @@ function Shell() {
             <div className="empty">{t("app.loading")}</div>
           </div>
         ) : tab === "dashboard" ? (
-          <Dashboard />
+          <Dashboard onNav={(x) => setTab(x as Tab)} />
         ) : tab === "log" ? (
           <DailyLog />
         ) : tab === "agenda" ? (

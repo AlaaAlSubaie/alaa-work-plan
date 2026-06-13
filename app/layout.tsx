@@ -16,6 +16,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body>
         <LangProvider>
           <StoreProvider>{children}</StoreProvider>

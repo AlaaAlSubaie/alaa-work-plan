@@ -297,7 +297,7 @@ export default function Agenda() {
                   className="iconbtn"
                   title="Delete"
                   onClick={() => {
-                    if (confirm("Delete this task?")) delAgenda(a.id);
+                    if (confirm(t("dlg.delTask"))) delAgenda(a.id);
                   }}
                 >
                   🗑️
@@ -365,9 +365,9 @@ export default function Agenda() {
                   className="iconbtn"
                   title="Edit"
                   onClick={() => {
-                    const v = prompt("Edit task:", a.text);
+                    const v = prompt(t("dlg.editTask"), a.text);
                     if (v === null) return;
-                    const tm = prompt("Time (HH:MM, leave empty for none):", a.time);
+                    const tm = prompt(t("dlg.time"), a.time);
                     editAgenda(a.id, v, tm ?? "");
                   }}
                 >
@@ -377,7 +377,7 @@ export default function Agenda() {
                   className="iconbtn"
                   title="Delete"
                   onClick={() => {
-                    if (confirm("Delete this task?")) delAgenda(a.id);
+                    if (confirm(t("dlg.delTask"))) delAgenda(a.id);
                   }}
                 >
                   🗑️

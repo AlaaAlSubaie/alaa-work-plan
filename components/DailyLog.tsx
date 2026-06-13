@@ -239,7 +239,7 @@ export default function DailyLog() {
                         className="iconbtn"
                         title="Delete"
                         onClick={() => {
-                          if (confirm("Delete this entry?")) delLog(e.id);
+                          if (confirm(t("dlg.delEntry"))) delLog(e.id);
                         }}
                       >
                         🗑️

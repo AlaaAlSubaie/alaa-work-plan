@@ -78,7 +78,7 @@ export default function WeeklyReport() {
 
   const generate = () => {
     if (!from || !to) {
-      toast("Pick a date range");
+      toast(t("toast.pickRange"));
       return;
     }
     setReport(
@@ -94,16 +94,16 @@ export default function WeeklyReport() {
 
   const enhance = () => {
     if (!report.trim()) {
-      toast("Generate a report first");
+      toast(t("toast.genFirst"));
       return;
     }
     setReport(enhanceText(report, lang));
-    toast("Wording enhanced ✨");
+    toast(t("toast.enhanced"));
   };
 
   const save = () => {
     if (!report.trim()) {
-      toast("Generate a report first");
+      toast(t("toast.genFirst"));
       return;
     }
     saveReport({
@@ -113,21 +113,21 @@ export default function WeeklyReport() {
       lang,
       text: report,
     });
-    toast("Report saved 📁");
+    toast(t("toast.reportSaved"));
   };
 
   const copy = () => {
     if (!report) {
-      toast("Generate a report first");
+      toast(t("toast.genFirst"));
       return;
     }
     navigator.clipboard.writeText(report);
-    toast("Copied! Paste it to your supervisor 📋");
+    toast(t("toast.copiedSup"));
   };
 
   const download = () => {
     if (!report) {
-      toast("Generate a report first");
+      toast(t("toast.genFirst"));
       return;
     }
     const blob = new Blob([report], { type: "text/plain" });
@@ -144,7 +144,7 @@ export default function WeeklyReport() {
     setTo(r.to);
     setLang(r.lang);
     setReport(r.text);
-    toast("Opened saved report");
+    toast(t("toast.openedSaved"));
   };
 
   return (
@@ -264,7 +264,7 @@ export default function WeeklyReport() {
                   className="btn ghost sm"
                   onClick={() => {
                     navigator.clipboard.writeText(r.text);
-                    toast("Copied 📋");
+                    toast(t("toast.copied"));
                   }}
                 >
                   {t("c.copy")}
@@ -273,7 +273,7 @@ export default function WeeklyReport() {
                   className="iconbtn"
                   title="Delete"
                   onClick={() => {
-                    if (confirm("Delete this saved report?")) delReport(r.id);
+                    if (confirm(t("dlg.delSaved"))) delReport(r.id);
                   }}
                 >
                   🗑️

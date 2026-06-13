@@ -289,7 +289,7 @@ export default function Team() {
                             if (!(addText[key] || "").trim()) return;
                             addProjectTask(p.id, addText[key], open);
                             setAddText((s) => ({ ...s, [key]: "" }));
-                            toast("Task added");
+                            toast(t("toast.taskAdded"));
                           }}
                         >
                           ＋
