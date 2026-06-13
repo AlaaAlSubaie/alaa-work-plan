@@ -2,7 +2,7 @@
 
 import { useState, DragEvent, KeyboardEvent } from "react";
 import { useStore } from "@/lib/store";
-import { COLUMNS, Status, Project, TaskStatus } from "@/lib/types";
+import { COLUMNS, Status, Project, TaskStatus, PRIORITIES } from "@/lib/types";
 import { useToast } from "./Toast";
 import { useLang } from "@/lib/i18n";
 
@@ -55,6 +55,7 @@ function ProjectDetail({ p }: { p: Project }) {
     addProjectTask,
     setProjectTaskStatus,
     setProjectTaskAssignee,
+    setProjectTaskPriority,
     delProjectTask,
     addProjectIssue,
     toggleProjectIssue,
@@ -223,6 +224,17 @@ function ProjectDetail({ p }: { p: Project }) {
                   </option>
                 ))}
               </select>
+              <span className="prio-group" title={t("prio.label")}>
+                {PRIORITIES.map((pr) => (
+                  <button
+                    key={pr}
+                    className={"prio-btn p-" + pr + (tk.priority === pr ? " on" : "")}
+                    onClick={() => setProjectTaskPriority(p.id, tk.id, pr)}
+                  >
+                    {t("prio." + pr)}
+                  </button>
+                ))}
+              </span>
               <button
                 className="iconbtn"
                 title="Delete"

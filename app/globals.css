@@ -1101,6 +1101,44 @@ mark {
   white-space: nowrap;
 }
 
+/* rounded priority buttons (per task) */
+.prio-group {
+  display: inline-flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.prio-btn {
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: 0.12s;
+}
+.prio-btn:hover {
+  border-color: var(--border-strong);
+  color: var(--text-secondary);
+}
+.prio-btn.on {
+  border-color: transparent;
+}
+.prio-btn.on.p-Low {
+  background: var(--status-pending-bg);
+  color: var(--status-pending-fg);
+}
+.prio-btn.on.p-Medium {
+  background: var(--status-progress-bg);
+  color: var(--status-progress-fg);
+}
+.prio-btn.on.p-High {
+  background: var(--status-issue-bg);
+  color: var(--status-issue-fg);
+}
+
 /* employee cards in the Team tab */
 .empcard {
   border: 1px solid var(--line);
@@ -1399,6 +1437,118 @@ mark {
   .aw-etc__live {
     animation: none !important;
   }
+}
+
+/* employee summary card (Team tab) */
+.emp-clickable {
+  cursor: pointer;
+}
+.emp-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+.emp-open {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* details popup / modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 16px;
+  overflow: auto;
+  z-index: 100;
+}
+.modal-panel {
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 620px;
+  overflow: hidden;
+  animation: aw-etc-in var(--dur-normal) var(--ease-out) both;
+}
+.modal-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.modal-title {
+  flex: 1;
+  min-width: 0;
+}
+.modal-title .nm {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.modal-title .rl {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+.modal-close {
+  border: none;
+  background: var(--surface-sunken);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-secondary);
+  flex: none;
+}
+.modal-close:hover {
+  background: var(--border-default);
+  color: var(--text-primary);
+}
+.modal-body {
+  padding: 14px 20px 20px;
+  max-height: 70vh;
+  overflow: auto;
+}
+.modal-proj {
+  margin-bottom: 16px;
+}
+.modal-proj:last-child {
+  margin-bottom: 0;
+}
+.modal-proj-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+.badge.b-stage {
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+  font-size: 10.5px;
+}
+.modal-due {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-inline-start: auto;
 }
 
 /* ---------- dashboard ---------- */

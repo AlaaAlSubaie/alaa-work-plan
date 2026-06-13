@@ -1,9 +1,15 @@
 "use client";
 
-import { useState, useMemo, KeyboardEvent } from "react";
+import { useState, useMemo, useEffect, KeyboardEvent } from "react";
 import { useStore } from "@/lib/store";
 import { CATEGORIES, Category, LogEntry } from "@/lib/types";
 import { useLang } from "@/lib/i18n";
+
+function todayISO() {
+  const d = new Date();
+  const z = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  return z.toISOString().slice(0, 10);
+}
 
 const EMOJI: Record<Category, string> = {
   Achievement: "✅",
@@ -32,10 +38,20 @@ function Highlight({ text, q }: { text: string; q: string }) {
 }
 
 export default function DailyLog() {
-  const { db, addLog, editLog, delLog } = useStore();
+  const { db, addLog, editLog, delLog, addAgenda } = useStore();
   const { t, locale } = useLang();
   const [input, setInput] = useState("");
   const [cat, setCat] = useState<Category>("Achievement");
+  const [toAgenda, setToAgenda] = useState(true);
+
+  // remember the "also add to agenda" preference
+  useEffect(() => {
+    const v = localStorage.getItem("aw-log2agenda");
+    if (v !== null) setToAgenda(v === "1");
+  }, []);
+  useEffect(() => {
+    localStorage.setItem("aw-log2agenda", toAgenda ? "1" : "0");
+  }, [toAgenda]);
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState<Category | "">("");
 
@@ -57,6 +73,7 @@ export default function DailyLog() {
   const submit = () => {
     if (!input.trim()) return;
     addLog(input, cat);
+    if (toAgenda) addAgenda(todayISO(), input.trim(), "");
     setInput("");
   };
   const onKey = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -119,6 +136,14 @@ export default function DailyLog() {
             </button>
           ))}
         </div>
+        <label className="toggle" style={{ marginTop: 12 }}>
+          <input
+            type="checkbox"
+            checked={toAgenda}
+            onChange={(e) => setToAgenda(e.target.checked)}
+          />
+          📅 {t("log.toAgenda")}
+        </label>
       </div>
 
       <div className="card">

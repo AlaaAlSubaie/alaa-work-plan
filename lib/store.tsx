@@ -57,6 +57,11 @@ interface StoreCtx {
     taskId: string,
     assignee: string
   ) => void;
+  setProjectTaskPriority: (
+    projectId: string,
+    taskId: string,
+    priority: ProjectTask["priority"]
+  ) => void;
   delProjectTask: (projectId: string, taskId: string) => void;
   addProjectIssue: (projectId: string, text: string) => void;
   toggleProjectIssue: (projectId: string, issueId: string) => void;
@@ -101,6 +106,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
               text: t.text,
               status: t.status ?? (t.done ? "Completed" : "Pending"),
               assignee: t.assignee ?? "",
+              priority: t.priority ?? "Medium",
             })),
             issues: p.issues ?? [],
             assignees: p.assignees ?? [],
@@ -223,7 +229,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ...p,
           tasks: [
             ...p.tasks,
-            { id: uid(), text: t, status: "Pending", assignee: assignee || "" },
+            {
+              id: uid(),
+              text: t,
+              status: "Pending",
+              assignee: assignee || "",
+              priority: "Medium",
+            },
           ],
         }))
       );
@@ -249,6 +261,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         patchProject(d, projectId, (p) => ({
           ...p,
           tasks: p.tasks.map((t) => (t.id === taskId ? { ...t, assignee } : t)),
+        }))
+      );
+    },
+    []
+  );
+
+  const setProjectTaskPriority = useCallback(
+    (projectId: string, taskId: string, priority: ProjectTask["priority"]) => {
+      setDb((d) =>
+        patchProject(d, projectId, (p) => ({
+          ...p,
+          tasks: p.tasks.map((t) => (t.id === taskId ? { ...t, priority } : t)),
         }))
       );
     },
@@ -415,6 +439,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         addProjectTask,
         setProjectTaskStatus,
         setProjectTaskAssignee,
+        setProjectTaskPriority,
         delProjectTask,
         addProjectIssue,
         toggleProjectIssue,

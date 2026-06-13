@@ -15,14 +15,18 @@ export interface LogEntry {
 }
 
 export type TaskStatus = "Pending" | "Progress" | "Completed";
+export type TaskPriority = "Low" | "Medium" | "High";
 
 export interface ProjectTask {
   id: string;
   text: string;
   status: TaskStatus;
   assignee: string; // Employee id, or "" if unassigned
+  priority: TaskPriority;
   done?: boolean; // legacy field (migrated to status)
 }
+
+export const PRIORITIES: TaskPriority[] = ["Low", "Medium", "High"];
 
 export interface ProjectIssue {
   id: string;

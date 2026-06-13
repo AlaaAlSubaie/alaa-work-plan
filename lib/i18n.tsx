@@ -66,6 +66,12 @@ export const T: Record<string, Entry> = {
   "ts.Progress": { en: "In Progress", ar: "قيد التنفيذ" },
   "ts.Done": { en: "Done", ar: "منجز" },
 
+  // ---- task priority ----
+  "prio.label": { en: "Priority", ar: "الأولوية" },
+  "prio.Low": { en: "Low", ar: "منخفضة" },
+  "prio.Medium": { en: "Medium", ar: "متوسطة" },
+  "prio.High": { en: "High", ar: "عالية" },
+
   // ---- Daily Log ----
   "log.capture": { en: "Quick capture", ar: "تدوين سريع" },
   "log.captureHint": {
@@ -82,6 +88,10 @@ export const T: Record<string, Entry> = {
   "log.empty": {
     en: "No entries yet. Capture your first task above ☝️",
     ar: "لا توجد مدخلات بعد. سجّل أول مهمة بالأعلى ☝️",
+  },
+  "log.toAgenda": {
+    en: "Also add to today's agenda",
+    ar: "أضِفها أيضًا إلى أجندة اليوم",
   },
   "log.noMatch": { en: "No entries match your search 🔍", ar: "لا توجد مدخلات مطابقة لبحثك 🔍" },
 
@@ -164,6 +174,16 @@ export const T: Record<string, Entry> = {
     en: "No tasks yet. Add one above, or create tasks in 📂 Projects.",
     ar: "لا توجد مهام بعد. أضف واحدة بالأعلى، أو أنشئ مهامًا في 📂 المشاريع.",
   },
+  "tb.subMembers": {
+    en: "{members} members · {active} active · {done} done",
+    ar: "{members} عضوًا · {active} نشطة · {done} منجزة",
+  },
+  "tb.tasksProjects": { en: "{tasks} tasks · {projects} projects", ar: "{tasks} مهام · {projects} مشاريع" },
+  "tb.viewDetails": { en: "View details", ar: "عرض التفاصيل" },
+  "tb.close": { en: "Close", ar: "إغلاق" },
+  "tb.noProjects": { en: "Not assigned to any project yet.", ar: "غير مُسند إلى أي مشروع بعد." },
+  "tb.noTasksProj": { en: "No tasks in this project yet.", ar: "لا توجد مهام في هذا المشروع بعد." },
+  "tb.noEmps": { en: "No team members yet. Add them in 📂 Projects → 👥 Manage team.", ar: "لا يوجد أعضاء بعد. أضفهم في 📂 المشاريع ← 👥 إدارة الفريق." },
 
   // ---- Dashboard ----
   "db.title": { en: "Department dashboard", ar: "لوحة معلومات القسم" },

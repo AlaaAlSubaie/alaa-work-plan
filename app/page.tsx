@@ -97,6 +97,7 @@ function Footer() {
               text: t.text,
               status: t.status ?? (t.done ? "Completed" : "Pending"),
               assignee: t.assignee ?? "",
+              priority: t.priority ?? "Medium",
             })),
             issues: p.issues ?? [],
             assignees: p.assignees ?? [],
