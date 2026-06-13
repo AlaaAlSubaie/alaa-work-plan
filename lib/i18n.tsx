@@ -352,8 +352,8 @@ export const T: Record<string, Entry> = {
     ar: "{n} عنصر من السجل اليومي والأجندة في هالفترة بينضمّ. دوسي إنشاء.",
   },
   "foot.copyright": {
-    en: "© 2026 Alaa Work Plan · Dev & Updating Systems",
-    ar: "© 2026 Alaa Work Plan · تطوير وتحديث الأنظمة",
+    en: "© 2026 Alaa hub for the Systems Development and Update Department -KU",
+    ar: "© 2026 Alaa hub لقسم تطوير وتحديث الأنظمة - KU",
   },
 };
 
@@ -375,7 +375,7 @@ interface LangCtx {
 const Ctx = createContext<LangCtx | null>(null);
 
 export function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("en");
+  const [lang, setLangState] = useState<Lang>("ar");
 
   useEffect(() => {
     try {

@@ -59,15 +59,12 @@ const WHOS = {
 
 export default function Lock() {
   const { t, lang, setLang } = useLang();
-  const [isSetup, setIsSetup] = useState(false); // false = sign in, true = create account
-  const [name, setName] = useState("");
+  // Sign-in only — public registration is disabled (single-user app).
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
-  const [confirm, setConfirm] = useState("");
   const [show, setShow] = useState(false);
   const [keep, setKeep] = useState(true);
   const [err, setErr] = useState("");
-  const [info, setInfo] = useState("");
   const [busy, setBusy] = useState(false);
   const [doneN, setDoneN] = useState(0);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -105,56 +102,28 @@ export default function Lock() {
   const submit = async () => {
     if (busy) return;
     setErr("");
-    setInfo("");
     if (!EMAIL_RE.test(email.trim())) return setErr(t("lock.errEmail"));
     if (pass.length < 6) return setErr(t("lock.errPwShort"));
 
     setBusy(true);
     try {
-      if (isSetup) {
-        if (!name.trim()) return setErr(t("lock.errName"));
-        if (pass !== confirm) return setErr(t("lock.errMatch"));
-        const { data, error } = await supabase.auth.signUp({
-          email: email.trim(),
-          password: pass,
-          options: { data: { name: name.trim() } },
-        });
-        if (error) return setErr(error.message);
-        rememberKeep(keep);
-        if (!data.session) {
-          // email confirmation is on — let the user know and flip to sign in
-          setInfo(t("lock.checkEmail"));
-          setIsSetup(false);
-          setPass("");
-          setConfirm("");
-        }
-        // if a session exists, onAuthStateChange in the shell unlocks the app
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password: pass,
-        });
-        if (error) {
-          return setErr(
-            /confirm/i.test(error.message) ? t("lock.errUnconfirmed") : t("lock.errWrong")
-          );
-        }
-        rememberKeep(keep);
-        // onAuthStateChange unlocks the app
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: pass,
+      });
+      if (error) {
+        return setErr(
+          /confirm/i.test(error.message) ? t("lock.errUnconfirmed") : t("lock.errWrong")
+        );
       }
+      rememberKeep(keep);
+      // onAuthStateChange in the shell unlocks the app
     } finally {
       setBusy(false);
     }
   };
 
-  const toggleMode = () => {
-    setIsSetup((s) => !s);
-    setErr("");
-    setInfo("");
-    setConfirm("");
-  };
-
-  const title = isSetup ? t("lock.setupTitle") : t("lock.welcome");
+  const title = t("lock.welcome");
 
   return (
     <div className="login-stage">
@@ -255,24 +224,7 @@ export default function Lock() {
         <div className="login-card">
           <p className="login-label">{t("login.label")}</p>
           <h1>{title}</h1>
-          <p className="sub">{isSetup ? t("lock.setupSub") : t("login.sub")}</p>
-
-          {isSetup && (
-            <label className="lk-field">
-              <span className="lk-label">{t("app.user")}</span>
-              <span className="lk-wrap">
-                <span className="lk-lead">
-                  <Icon name="user" />
-                </span>
-                <input
-                  className="lk-input"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder={t("app.user")}
-                />
-              </span>
-            </label>
-          )}
+          <p className="sub">{t("login.sub")}</p>
 
           <label className="lk-field">
             <span className="lk-label">{t("lock.email")}</span>
@@ -286,7 +238,7 @@ export default function Lock() {
                 autoComplete="email"
                 inputMode="email"
                 value={email}
-                autoFocus={!isSetup}
+                autoFocus
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") submit();
@@ -305,11 +257,11 @@ export default function Lock() {
               <input
                 className="lk-input"
                 type={show ? "text" : "password"}
-                autoComplete={isSetup ? "new-password" : "current-password"}
+                autoComplete="current-password"
                 value={pass}
                 onChange={(e) => setPass(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && !isSetup) submit();
+                  if (e.key === "Enter") submit();
                 }}
                 placeholder={t("lock.password")}
               />
@@ -319,43 +271,17 @@ export default function Lock() {
             </span>
           </label>
 
-          {isSetup && (
-            <label className="lk-field">
-              <span className="lk-label">{t("lock.confirmPw")}</span>
-              <span className="lk-wrap">
-                <span className="lk-lead">
-                  <Icon name="lock" />
-                </span>
-                <input
-                  className="lk-input"
-                  type={show ? "text" : "password"}
-                  autoComplete="new-password"
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") submit();
-                  }}
-                  placeholder={t("lock.confirmPw")}
-                />
-              </span>
-            </label>
-          )}
-
           <div className="row-between">
             <label className="lk-keep">
               <input type="checkbox" checked={keep} onChange={(e) => setKeep(e.target.checked)} />
               {t("login.keep")}
             </label>
-            <button className="lk-link" onClick={toggleMode}>
-              {isSetup ? t("lock.haveAccount") : t("lock.needAccount")}
-            </button>
           </div>
 
           {err && <div className="lock-err">{err}</div>}
-          {info && <div className="lock-info">{info}</div>}
 
           <button className="btn lk-submit" onClick={submit} disabled={busy}>
-            {busy ? t("lock.working") : isSetup ? t("lock.create") : t("lock.unlock")}
+            {busy ? t("lock.working") : t("lock.unlock")}
             {!busy && <Icon name="arrowRight" />}
           </button>
 
