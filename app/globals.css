@@ -42,6 +42,28 @@
   --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas,
     monospace;
 
+  /* extended tokens (for the team board design) */
+  --text-accent: #0066cc;
+  --accent-secondary-tint: #ebebfb;
+  --ink-300: #c7c7cc;
+  --radius-pill: 999px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --dur-fast: 120ms;
+  --dur-normal: 200ms;
+  --dur-slow: 320ms;
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --text-h1: 30px;
+  --text-body-lg: 17px;
+  --text-body: 15px;
+  --text-sm: 13px;
+  --text-caption: 12px;
+
   /* ===== back-compat aliases used across existing components ===== */
   --bg: var(--surface-app);
   --panel: var(--surface-card);
@@ -1136,6 +1158,247 @@ mark {
 .stat.done {
   background: #eafaf0;
   color: #15803d;
+}
+
+/* ===================== team board (design system) ===================== */
+.tboard-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.tboard-head h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.tboard-head .sub {
+  margin: 3px 0 0;
+  color: var(--text-muted);
+  font-size: var(--text-body);
+}
+.tboard-live {
+  margin-inline-start: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  padding: 8px 15px;
+  box-shadow: var(--shadow-xs);
+}
+.tboard-live .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--status-done-fg);
+  animation: tb-blink 1.6s ease-in-out infinite;
+}
+.tboard-live .clock {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: var(--text-body);
+}
+.tboard-live .lbl {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+@keyframes tb-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.tboard-controls {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.tboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 18px;
+}
+
+@keyframes aw-etc-pulse {
+  0% { box-shadow: 0 0 0 0 var(--aw-pulse, rgba(29, 138, 78, 0.5)); }
+  70% { box-shadow: 0 0 0 7px rgba(0, 0, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
+}
+@keyframes aw-etc-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+.aw-etc {
+  position: relative;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-5);
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  transition: box-shadow var(--dur-normal) var(--ease-standard),
+    transform var(--dur-normal) var(--ease-standard),
+    border-color var(--dur-normal) var(--ease-standard);
+  animation: aw-etc-in var(--dur-slow) var(--ease-out) both;
+  overflow: hidden;
+}
+.aw-etc:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+  border-color: var(--border-default);
+}
+.aw-etc__accent {
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+}
+.aw-etc__top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.aw-etc__ava {
+  position: relative;
+  flex: none;
+}
+.aw-etc__avacircle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+}
+.aw-etc__on {
+  position: absolute;
+  inset-inline-end: -1px;
+  bottom: -1px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2.5px solid var(--surface-card);
+  background: var(--status-done-fg);
+}
+.aw-etc__on--busy { background: var(--status-progress-fg); }
+.aw-etc__on--off { background: var(--ink-300); }
+.aw-etc__who { flex: 1; min-width: 0; line-height: 1.25; }
+.aw-etc__name {
+  font-weight: 600;
+  font-size: var(--text-body);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.aw-etc__role {
+  font-size: var(--text-caption);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.aw-etc__cat {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  flex: none;
+}
+.aw-etc__cat svg { display: block; }
+.aw-etc__title {
+  margin: 0;
+  font-size: var(--text-body-lg);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+.aw-etc__chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.aw-etc__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--text-caption);
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: var(--radius-pill);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.aw-etc__chip svg { display: block; }
+.aw-etc__prog { display: flex; flex-direction: column; gap: 6px; }
+.aw-etc__progtop {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: var(--text-caption);
+}
+.aw-etc__progtop b {
+  font-family: var(--font-mono);
+  color: var(--text-accent);
+  font-weight: 600;
+}
+.aw-etc__track {
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  overflow: hidden;
+  position: relative;
+}
+.aw-etc__fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  transition: width var(--dur-slow) var(--ease-out);
+}
+.aw-etc__foot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+.aw-etc__meta { display: inline-flex; align-items: center; gap: 5px; }
+.aw-etc__meta svg { display: block; }
+.aw-etc__del {
+  margin-inline-start: auto;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity var(--dur-fast) ease;
+}
+.aw-etc:hover .aw-etc__del { opacity: 0.6; }
+.aw-etc__del:hover { opacity: 1; }
+.aw-etc__live {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: aw-etc-pulse 1.8s var(--ease-standard) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .aw-etc,
+  .aw-etc__live {
+    animation: none !important;
+  }
 }
 
 /* ---------- dashboard ---------- */

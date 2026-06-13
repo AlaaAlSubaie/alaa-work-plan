@@ -145,8 +145,25 @@ export const T: Record<string, Entry> = {
   "tm.assignFirst": { en: "Assign {name} to a project first (in 📂 Projects) to add tasks here.", ar: "أسند {name} إلى مشروع أولًا (في 📂 المشاريع) لإضافة المهام هنا." },
   "tm.noTasks": { en: "No tasks.", ar: "لا توجد مهام." },
   "tm.noMembers": { en: "No team members yet. Add them in 📂 Projects → 👥 Manage team.", ar: "لا يوجد أعضاء بعد. أضفهم في 📂 المشاريع ← 👥 إدارة الفريق." },
-  "tm.unassigned": { en: "Unassigned tasks", ar: "مهام غير مُسندة" },
+  "tm.unassigned": { en: "Unassigned", ar: "غير مُسند" },
   "tm.noOwner": { en: "{n} task(s) with no owner", ar: "{n} مهمة دون مالك" },
+
+  // ---- Team board (live cards) ----
+  "tb.title": { en: "Team · who's working on what", ar: "الفريق · مَن يعمل على ماذا" },
+  "tb.sub": {
+    en: "{active} active now · {done} completed · {pending} pending",
+    ar: "{active} نشطة الآن · {done} مكتملة · {pending} قيد الانتظار",
+  },
+  "tb.live": { en: "Live", ar: "مباشر" },
+  "tb.active": { en: "Active now", ar: "نشطة الآن" },
+  "tb.completed": { en: "Completed", ar: "مكتملة" },
+  "tb.pending": { en: "Pending", ar: "قيد الانتظار" },
+  "tb.projTasks": { en: "{done}/{total} project tasks", ar: "{done}/{total} من مهام المشروع" },
+  "tb.taskTitle": { en: "Task title…", ar: "عنوان المهمة…" },
+  "tb.noTasks": {
+    en: "No tasks yet. Add one above, or create tasks in 📂 Projects.",
+    ar: "لا توجد مهام بعد. أضف واحدة بالأعلى، أو أنشئ مهامًا في 📂 المشاريع.",
+  },
 
   // ---- Dashboard ----
   "db.title": { en: "Department dashboard", ar: "لوحة معلومات القسم" },
