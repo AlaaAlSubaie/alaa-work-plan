@@ -19,7 +19,7 @@ function initials(name: string) {
   const a = name.trim().split(/\s+/);
   return ((a[0]?.[0] || "") + (a[1]?.[0] || "")).toUpperCase();
 }
-const AVA_BG = ["#0071e3", "#5e5ce6", "#d97706", "#1d8a4e", "#be3455"];
+const AVA_BG = ["#2bafce", "#5e5ce6", "#d97706", "#1d8a4e", "#be3455"];
 const avaBg = (name: string) => AVA_BG[(name.charCodeAt(0) || 0) % AVA_BG.length];
 
 function LiveClock() {

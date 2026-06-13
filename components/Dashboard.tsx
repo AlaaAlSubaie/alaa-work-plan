@@ -26,7 +26,22 @@ const ICONS: Record<string, string> = {
   flag: '<path d="M4 22V4M4 4h11l-1.5 4L15 12H4"/>',
   msg: '<path d="M21 11.5a8.38 8.38 0 0 1-9 8.3 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 12 3a8.5 8.5 0 0 1 9 8.5z"/>',
   note: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
+  box: '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96 12 12.01l8.73-5.05"/><path d="M12 22.08V12"/>',
+  wrench:
+    '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  clip: '<path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>',
 };
+
+/* role → icon + tone for the team cards */
+function roleStyle(role: string): { icon: string; bg: string; fg: string } {
+  const r = (role || "").toLowerCase();
+  if (/design/.test(r)) return { icon: "pencil", bg: "var(--status-info-bg)", fg: "var(--status-info-fg)" };
+  if (/devops|ops|infra|sre/.test(r)) return { icon: "wrench", bg: "var(--status-progress-bg)", fg: "var(--status-progress-fg)" };
+  if (/qa|test/.test(r)) return { icon: "check", bg: "var(--status-done-bg)", fg: "var(--status-done-fg)" };
+  if (/manage|lead|head|director/.test(r)) return { icon: "users", bg: "var(--accent-secondary-tint)", fg: "var(--accent-secondary)" };
+  return { icon: "box", bg: "var(--status-done-bg)", fg: "var(--status-done-fg)" };
+}
 function Icon({ name, size = 16, sw = 2 }: { name: string; size?: number; sw?: number }) {
   return (
     <svg
@@ -188,9 +203,32 @@ export default function Dashboard({ onNav }: { onNav?: (tab: string) => void }) 
 
   // team active tasks (in progress)
   const activeTaskRows = projects
-    .flatMap((p) => p.tasks.map((tk) => ({ tk, projectName: p.name })))
+    .flatMap((p) => p.tasks.map((tk) => ({ tk, project: p })))
     .filter((r) => r.tk.status === "Progress")
     .slice(0, 6);
+
+  // due label for a project, relative to today
+  const dueLabel = (due: string): { text: string; overdue: boolean } | null => {
+    if (!due) return null;
+    const d = new Date(due + "T00:00:00");
+    if (isNaN(d.getTime())) return null;
+    const now = new Date(today + "T00:00:00");
+    const diff = Math.round((d.getTime() - now.getTime()) / 86400000);
+    if (diff < 0) return { text: t("db.overdue"), overdue: true };
+    if (diff === 0) return { text: t("db.dueToday"), overdue: false };
+    if (diff === 1) return { text: t("db.dueTomorrow"), overdue: false };
+    return {
+      text: t("db.dueOn", {
+        d: d.toLocaleDateString(locale, { month: "short", day: "numeric" }),
+      }),
+      overdue: false,
+    };
+  };
+  const PRIO_TONE: Record<string, string> = {
+    High: "var(--status-issue-fg)",
+    Medium: "var(--status-progress-fg)",
+    Low: "var(--text-muted)",
+  };
 
   // recent activity from the daily log
   const CAT_ICON: Record<string, string> = {
@@ -397,46 +435,105 @@ export default function Dashboard({ onNav }: { onNav?: (tab: string) => void }) 
         )}
       </div>
 
-      {/* team active tasks + recent activity */}
-      <div className="hero-grid wide">
-        <div className="card">
-          <div className="dsec-head">
-            <h2 className="sec" style={{ margin: 0 }}>
-              {t("db.activeTasksTitle")}
-            </h2>
-            <button className="btn ghost sm" onClick={() => onNav?.("team")}>
-              {t("db.viewAll")} <Icon name="arrowRight" size={15} />
-            </button>
-          </div>
-          {activeTaskRows.length === 0 ? (
-            <div className="empty">{t("db.noActiveTasks")}</div>
-          ) : (
-            <div className="act-tasks">
-              {activeTaskRows.map(({ tk, projectName }) => {
-                const emp = db.employees.find((e) => e.id === tk.assignee);
-                return (
-                  <div className="act-task" key={tk.id}>
-                    <span
-                      className="mini-ava"
-                      style={{ background: emp ? avatarColor(emp.name) : "#94a3b8" }}
-                    >
-                      {emp ? initials(emp.name) : "—"}
-                    </span>
-                    <div className="act-task-main">
-                      <div className="act-task-title">{tk.text}</div>
-                      <div className="act-task-sub">
-                        📂 {projectName}
-                        {emp ? " · " + emp.name : ""}
-                      </div>
-                    </div>
-                    <span className="aw-etc__live" style={{ color: "var(--status-progress-fg)" }} />
-                  </div>
-                );
-              })}
-            </div>
-          )}
+      {/* team · in progress — cards */}
+      <div className="card">
+        <div className="dsec-head">
+          <h2 className="sec" style={{ margin: 0 }}>
+            {t("db.activeTasksTitle")}
+          </h2>
+          <button className="btn ghost sm" onClick={() => onNav?.("team")}>
+            {t("db.viewAll")} <Icon name="arrowRight" size={15} />
+          </button>
         </div>
+        {activeTaskRows.length === 0 ? (
+          <div className="empty">{t("db.noActiveTasks")}</div>
+        ) : (
+          <div className="tip-grid">
+            {activeTaskRows.map(({ tk, project }) => {
+              const emp = db.employees.find((e) => e.id === tk.assignee);
+              const name = emp?.name || "Unassigned";
+              const role = emp?.role || "—";
+              const rs = roleStyle(role);
+              const blocked = project.issues.some((i) => !i.resolved);
+              const done = project.tasks.filter((x) => x.status === "Completed").length;
+              const pct = project.tasks.length
+                ? Math.round((done / project.tasks.length) * 100)
+                : 0;
+              const accent = blocked ? "var(--status-issue-fg)" : "var(--status-progress-fg)";
+              const barColor = blocked ? "var(--status-issue-fg)" : "var(--accent)";
+              const due = dueLabel(project.due);
+              const openIssues = project.issues.filter((i) => !i.resolved).length;
+              return (
+                <article className="tip-card" key={tk.id} style={{ ["--tip-accent" as string]: accent }}>
+                  <header className="tip-head">
+                    <span className="tip-ava-wrap">
+                      <span
+                        className="tip-ava"
+                        style={{ background: emp ? avatarColor(name) : "#94a3b8" }}
+                      >
+                        {emp ? initials(name) : "—"}
+                      </span>
+                      <span
+                        className="tip-ava-dot"
+                        style={{ background: blocked ? "var(--status-issue-fg)" : "var(--status-progress-fg)" }}
+                      />
+                    </span>
+                    <div className="tip-who">
+                      <div className="tip-name">{name}</div>
+                      <div className="tip-role">{role}</div>
+                    </div>
+                    <span className="tip-role-ic" style={{ background: rs.bg, color: rs.fg }}>
+                      <Icon name={rs.icon} size={18} />
+                    </span>
+                  </header>
 
+                  <h3 className="tip-title">{tk.text}</h3>
+
+                  <div className="tip-badges">
+                    {blocked ? (
+                      <span className="tip-badge tip-badge--blocked">{t("db.blocked")}</span>
+                    ) : (
+                      <span className="tip-badge tip-badge--active">
+                        <span className="tip-badge-dot" />
+                        {t("db.activeNow")}
+                      </span>
+                    )}
+                    <span className="tip-badge tip-badge--prio" style={{ color: PRIO_TONE[tk.priority] }}>
+                      <Icon name="flag" size={13} /> {t("prio." + tk.priority)}
+                    </span>
+                  </div>
+
+                  <div className="tip-prog">
+                    <div
+                      className="tip-prog-fill"
+                      style={{ width: pct + "%", background: barColor }}
+                    />
+                  </div>
+
+                  <footer className="tip-foot">
+                    {due && (
+                      <span className={"tip-meta" + (due.overdue ? " tip-meta--alert" : "")}>
+                        <Icon name="clock" size={14} /> {due.text}
+                      </span>
+                    )}
+                    <span className="tip-meta">
+                      <Icon name="board" size={14} /> {project.name}
+                    </span>
+                    {openIssues > 0 && (
+                      <span className="tip-meta tip-meta--alert">
+                        <Icon name="alert" size={14} /> {openIssues}
+                      </span>
+                    )}
+                  </footer>
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* recent activity */}
+      <div className="recent-wrap">
         <div className="card">
           <h2 className="sec">{t("db.recentActivity")}</h2>
           {activity.length === 0 ? (

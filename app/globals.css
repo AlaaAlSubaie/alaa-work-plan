@@ -7,16 +7,16 @@
   --text-secondary: #6e6e73;
   --text-muted: #86868b;
   --text-placeholder: #aeaeb2;
-  --accent: #0071e3;
-  --accent-hover: #0077ed;
-  --accent-pressed: #0062c4;
-  --accent-tint: #e8f2fd;
-  --accent-tint-strong: #d2e6fb;
+  --accent: #2bafce;
+  --accent-hover: #36bbd9;
+  --accent-pressed: #1f95b0;
+  --accent-tint: #e7f6fa;
+  --accent-tint-strong: #c9ecf3;
   --accent-secondary: #5e5ce6;
   --border-subtle: #ededf0;
   --border-default: #e2e2e6;
   --border-strong: #d2d2d7;
-  --ring: 0 0 0 3px rgba(0, 113, 227, 0.4);
+  --ring: 0 0 0 3px rgba(43, 175, 206, 0.4);
 
   /* status foreground + tint-background pairs */
   --status-pending-fg: #6e6e73;  --status-pending-bg: #ededf0;
@@ -43,7 +43,7 @@
     monospace;
 
   /* extended tokens (for the team board design) */
-  --text-accent: #0066cc;
+  --text-accent: #0e7f99;
   --accent-secondary-tint: #ebebfb;
   --accent-warm: #ff6b57;
   --gradient-brand: linear-gradient(158deg, #1e293b 0%, #0b1220 100%);
@@ -111,18 +111,18 @@ body {
   --text-secondary: #665e52;
   --text-muted: #8c8475;
   --text-placeholder: #aaa291;
-  --text-accent: #a8512f;
+  --text-accent: #0e7f99;
   --border-subtle: #ece6da;
   --border-default: #e0d8c8;
   --border-strong: #cfc4ae;
-  --accent: #c2653f;
-  --accent-hover: #a8512f;
-  --accent-pressed: #8c4226;
-  --accent-tint: #f6ece4;
-  --accent-tint-strong: #f0ddcf;
+  --accent: #2bafce;
+  --accent-hover: #36bbd9;
+  --accent-pressed: #1f95b0;
+  --accent-tint: #e7f6fa;
+  --accent-tint-strong: #cdeef5;
   --accent-secondary: #5f6f6a;
   --accent-warm: #d98a5c;
-  --ring: 0 0 0 3px rgba(194, 101, 63, 0.3);
+  --ring: 0 0 0 3px rgba(43, 175, 206, 0.3);
   display: grid;
   grid-template-columns: 1.1fr 1fr;
   min-height: 100vh;
@@ -1991,6 +1991,182 @@ mark {
   height: 100%;
   border-radius: var(--radius-pill);
   transition: width var(--dur-slow) var(--ease-out);
+}
+
+/* team · in progress — cards */
+.tip-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 16px;
+}
+.tip-card {
+  --tip-accent: var(--status-progress-fg);
+  position: relative;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  padding: 18px 18px 16px;
+  overflow: hidden;
+  transition: box-shadow var(--dur-normal) var(--ease-out),
+    transform var(--dur-normal) var(--ease-out);
+}
+.tip-card::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 4px;
+  background: var(--tip-accent);
+}
+.tip-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+.tip-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.tip-ava-wrap {
+  position: relative;
+  flex: none;
+}
+.tip-ava {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.tip-ava-dot {
+  position: absolute;
+  inset-block-end: 1px;
+  inset-inline-end: 1px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--surface-card);
+}
+.tip-who {
+  flex: 1;
+  min-width: 0;
+}
+.tip-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tip-role {
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tip-role-ic {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.tip-title {
+  font-size: var(--text-body-lg);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin: 16px 0 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.tip-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.tip-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  line-height: 1;
+}
+.tip-badge--active {
+  background: var(--status-progress-bg);
+  color: var(--status-progress-fg);
+}
+.tip-badge--blocked {
+  background: var(--status-issue-bg);
+  color: var(--status-issue-fg);
+}
+.tip-badge--prio {
+  background: var(--surface-sunken);
+}
+.tip-badge--prio svg {
+  display: block;
+}
+.tip-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.tip-prog {
+  height: 7px;
+  background: var(--surface-sunken);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-top: 16px;
+}
+.tip-prog-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width var(--dur-slow) var(--ease-out);
+}
+.tip-foot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 14px;
+}
+.tip-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-caption);
+  color: var(--text-muted);
+  min-width: 0;
+}
+.tip-meta svg {
+  display: block;
+  flex: none;
+}
+.tip-meta--alert {
+  color: var(--status-issue-fg);
+}
+.recent-wrap {
+  margin-top: 16px;
 }
 
 /* active tasks + activity */
