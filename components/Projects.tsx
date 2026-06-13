@@ -311,7 +311,8 @@ function ProjectDetail({ p }: { p: Project }) {
           <div className="psub-empty">{t("pr.noIssues")}</div>
         ) : (
           p.issues.map((i) => (
-            <div key={i.id} className={"subrow issue" + (i.resolved ? " done" : "")}>
+            <div key={i.id} className={"issuecard" + (i.resolved ? " done" : "")}>
+              <span className="issuewarn">⚠️</span>
               <input
                 type="checkbox"
                 checked={i.resolved}
@@ -319,6 +320,9 @@ function ProjectDetail({ p }: { p: Project }) {
                 onChange={() => toggleProjectIssue(p.id, i.id)}
               />
               <span className="subtext">{i.text}</span>
+              <span className={"issuebadge " + (i.resolved ? "resolved" : "open")}>
+                {i.resolved ? t("pr.issueResolved") : t("pr.issueOpen")}
+              </span>
               <button
                 className="iconbtn"
                 title="Delete"
@@ -368,6 +372,14 @@ export default function Projects() {
     setName("");
     setNote("");
     setDue("");
+    toast(t("toast.projectAdded"));
+  };
+
+  const addToColumn = (col: Status) => {
+    const n = prompt(t("pr.addToCol", { col: t("stage." + col) }));
+    if (n === null) return;
+    if (!n.trim()) return;
+    addProject(n, "", col, "");
     toast(t("toast.projectAdded"));
   };
 
@@ -522,6 +534,10 @@ export default function Projects() {
         </div>
       )}
 
+      <div className="board-subtitle">
+        {t("pr.active", { n: db.projects.length, c: COLUMNS.length })}
+      </div>
+
       <div className="board board-6">
         {COLUMNS.map(({ key }) => {
           const items = db.projects
@@ -547,6 +563,13 @@ export default function Projects() {
                 <span className={"dot d-" + key}></span>
                 {t("stage." + key)}
                 <span className="count">{items.length}</span>
+                <button
+                  className="coladd"
+                  title={t("pr.addToCol", { col: t("stage." + key) })}
+                  onClick={() => addToColumn(key)}
+                >
+                  ＋
+                </button>
               </div>
               {items.map((p) => {
                 const doneTasks = p.tasks.filter((t) => t.status === "Completed").length;
@@ -557,19 +580,43 @@ export default function Projects() {
                 const team = p.assignees
                   .map((id) => db.employees.find((e) => e.id === id))
                   .filter(Boolean) as { id: string; name: string; role: string }[];
+                const pct = p.tasks.length
+                  ? Math.round((doneTasks / p.tasks.length) * 100)
+                  : 0;
+                const full = p.tasks.length > 0 && doneTasks === p.tasks.length;
                 return (
                   <div
                     key={p.id}
-                    className={"pcard l-" + key + (dragId === p.id ? " dragging" : "")}
+                    className={
+                      "pcard l-" +
+                      key +
+                      (dragId === p.id ? " dragging" : "") +
+                      (isOpen ? " open" : "")
+                    }
                   >
-                    <div
-                      className="pcard-handle"
-                      draggable
-                      onDragStart={() => setDragId(p.id)}
-                      onDragEnd={() => setDragId(null)}
-                    >
-                      <div className="pname">{p.name}</div>
-                      {p.note && <div className="pnote">{p.note}</div>}
+                    {/* header: drag grip · name · expand chevron */}
+                    <div className="pcard-top">
+                      <span
+                        className="pgrip"
+                        draggable
+                        title="Drag to move"
+                        onDragStart={() => setDragId(p.id)}
+                        onDragEnd={() => setDragId(null)}
+                      />
+                      <div className="pcard-titlewrap">
+                        <div className="pname">{p.name}</div>
+                        {p.note && <div className="pnote">{p.note}</div>}
+                      </div>
+                      <button
+                        className="pchevron"
+                        title={t("pr.details")}
+                        aria-expanded={isOpen}
+                        onClick={() =>
+                          setExpanded((e) => ({ ...e, [p.id]: !e[p.id] }))
+                        }
+                      >
+                        {isOpen ? "⌃" : "⌄"}
+                      </button>
                     </div>
 
                     {/* due badge */}
@@ -600,67 +647,72 @@ export default function Projects() {
                       </div>
                     )}
 
-                    {/* summary chips */}
-                    {(p.tasks.length > 0 || p.issues.length > 0) && (
-                      <div className="psummary">
+                    {/* task ratio + issue pill */}
+                    {(p.tasks.length > 0 || openIssues > 0) && (
+                      <div className="pmeta">
                         {p.tasks.length > 0 && (
-                          <span className="schip t">
-                            ✅ {doneTasks}/{p.tasks.length}
+                          <span className="ptaskratio">
+                            <span className="pcheck">✓</span> {doneTasks} /{" "}
+                            {p.tasks.length}
                           </span>
                         )}
                         {openIssues > 0 && (
-                          <span className="schip i">⚠️ {openIssues}</span>
+                          <span className="pissuepill">
+                            {openIssues === 1
+                              ? t("pr.oneIssue")
+                              : t("pr.nIssues", { n: openIssues })}
+                          </span>
                         )}
                       </div>
                     )}
 
-                    <div className="pfoot">
+                    {/* progress bar */}
+                    {p.tasks.length > 0 && (
+                      <div className="pbar" title={pct + "%"}>
+                        <div
+                          className={"pbar-fill" + (full ? " full" : "")}
+                          style={{ width: pct + "%" }}
+                        />
+                      </div>
+                    )}
+
+                    {/* hover / expanded action row */}
+                    <div className="pcard-actions">
                       <button
-                        className="detailsbtn"
-                        onClick={() =>
-                          setExpanded((e) => ({ ...e, [p.id]: !e[p.id] }))
-                        }
+                        className="iconbtn"
+                        title="Move left"
+                        onClick={() => move(p.id, -1)}
                       >
-                        {isOpen ? "▾ " : "▸ "}
-                        {t("pr.details")}
+                        ◀
                       </button>
-                      <span>
-                        <button
-                          className="iconbtn"
-                          title="Move left"
-                          onClick={() => move(p.id, -1)}
-                        >
-                          ◀
-                        </button>
-                        <button
-                          className="iconbtn"
-                          title="Move right"
-                          onClick={() => move(p.id, 1)}
-                        >
-                          ▶
-                        </button>
-                        <button
-                          className="iconbtn"
-                          title="Edit"
-                          onClick={() => {
-                            const n = prompt(t("dlg.projName"), p.name);
-                            if (n === null) return;
-                            const d = prompt(t("dlg.note"), p.note || "");
-                            editProject(p.id, n, d || "");
-                          }}
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          className="iconbtn"
-                          title="Delete"
-                          onClick={() => {
-                            if (confirm(t("dlg.delProject"))) delProject(p.id);
-                          }}
-                        >
-                          🗑️
-                        </button>
-                      </span>
+                      <button
+                        className="iconbtn"
+                        title="Move right"
+                        onClick={() => move(p.id, 1)}
+                      >
+                        ▶
+                      </button>
+                      <button
+                        className="iconbtn"
+                        title="Edit"
+                        onClick={() => {
+                          const n = prompt(t("dlg.projName"), p.name);
+                          if (n === null) return;
+                          const d = prompt(t("dlg.note"), p.note || "");
+                          editProject(p.id, n, d || "");
+                        }}
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        className="iconbtn"
+                        title="Delete"
+                        onClick={() => {
+                          if (confirm(t("dlg.delProject"))) delProject(p.id);
+                        }}
+                      >
+                        🗑️
+                      </button>
                     </div>
 
                     {isOpen && <ProjectDetail p={p} />}

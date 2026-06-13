@@ -60,6 +60,15 @@ export default function DailyLog() {
   const [editText, setEditText] = useState("");
   const [editCat, setEditCat] = useState<Category>("Achievement");
 
+  // per-entry "⋮" action menu
+  const [menuId, setMenuId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!menuId) return;
+    const close = () => setMenuId(null);
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, [menuId]);
+
   const fmtDay = (ts: number) =>
     new Date(ts).toLocaleDateString(locale, {
       weekday: "long",
@@ -68,7 +77,11 @@ export default function DailyLog() {
       day: "numeric",
     });
   const fmtTime = (ts: number) =>
-    new Date(ts).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
+    new Date(ts).toLocaleTimeString(locale, {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
 
   const submit = () => {
     if (!input.trim()) return;
@@ -109,13 +122,26 @@ export default function DailyLog() {
   const q = search.trim().toLowerCase();
   const dayKeys = Object.keys(groups);
 
+  const todayKey = new Date().toDateString();
+  const yesterdayKey = new Date(Date.now() - 86400000).toDateString();
+  const dayLabel = (day: string) =>
+    day === todayKey
+      ? t("c.today")
+      : day === yesterdayKey
+      ? t("log.yesterday")
+      : fmtDay(groups[day][0].ts);
+
   return (
     <>
-      <div className="card">
-        <h2 className="sec">⚡ {t("log.capture")}</h2>
-        <p className="hint">{t("log.captureHint")}</p>
-        <div className="quick">
+      {/* composer */}
+      <div className="card composer-card">
+        <div className="composer">
+          <span className="composer-icon" aria-hidden>
+            ✎
+          </span>
           <textarea
+            className="composer-input"
+            rows={1}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={onKey}
@@ -146,112 +172,145 @@ export default function DailyLog() {
         </label>
       </div>
 
-      <div className="card">
-        <h2 className="sec">🗂️ {t("log.yourLog")}</h2>
-        <div className="logtools">
+      {/* search + category filter pills */}
+      <div className="logbar">
+        <div className="logsearch">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+            <path
+              d="m20 20-3.5-3.5"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
           <input
-            className="searchbox"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t("log.search")}
           />
-          <select
-            className="filtersel"
-            value={filterCat}
-            onChange={(e) => setFilterCat(e.target.value as Category | "")}
-          >
-            <option value="">{t("log.allCats")}</option>
-            {CATEGORIES.map(({ cat: c }) => (
-              <option key={c} value={c}>
-                {EMOJI[c]} {t("cat." + c)}
-              </option>
-            ))}
-          </select>
-          <button
-            className="btn ghost sm"
-            onClick={() => {
-              setSearch("");
-              setFilterCat("");
-            }}
-          >
-            {t("c.clear")}
-          </button>
         </div>
-
-        {db.logs.length === 0 ? (
-          <div className="empty">{t("log.empty")}</div>
-        ) : dayKeys.length === 0 ? (
-          <div className="empty">{t("log.noMatch")}</div>
-        ) : (
-          dayKeys.map((day) => (
-            <div className="daygroup" key={day}>
-              <div className="dayhead">{fmtDay(groups[day][0].ts)}</div>
-              {groups[day].map((e) =>
-                editId === e.id ? (
-                  <div className="entry editing" key={e.id}>
-                    <select
-                      className="filtersel"
-                      value={editCat}
-                      onChange={(ev) => setEditCat(ev.target.value as Category)}
-                    >
-                      {CATEGORIES.map(({ cat: c }) => (
-                        <option key={c} value={c}>
-                          {EMOJI[c]} {t("cat." + c)}
-                        </option>
-                      ))}
-                    </select>
-                    <input
-                      className="searchbox"
-                      value={editText}
-                      autoFocus
-                      onChange={(ev) => setEditText(ev.target.value)}
-                      onKeyDown={(ev) => {
-                        if (ev.key === "Enter") saveEdit();
-                        if (ev.key === "Escape") setEditId(null);
-                      }}
-                    />
-                    <button className="btn sm" onClick={saveEdit}>
-                      ✓
-                    </button>
-                    <button
-                      className="btn ghost sm"
-                      onClick={() => setEditId(null)}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <div className="entry" key={e.id}>
-                    <span className={"badge b-" + e.cat}>{t("cat." + e.cat)}</span>
-                    <div className="txt">
-                      <Highlight text={e.text} q={q} />
-                      <div className="time">{fmtTime(e.ts)}</div>
-                    </div>
-                    <div className="acts">
-                      <button
-                        className="iconbtn"
-                        title="Edit"
-                        onClick={() => startEdit(e)}
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        className="iconbtn"
-                        title="Delete"
-                        onClick={() => {
-                          if (confirm(t("dlg.delEntry"))) delLog(e.id);
-                        }}
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </div>
-                )
-              )}
-            </div>
-          ))
-        )}
+        <div className="logfilters">
+          <button
+            className={"fpill" + (filterCat === "" ? " on" : "")}
+            onClick={() => setFilterCat("")}
+          >
+            {t("log.all")}
+          </button>
+          {CATEGORIES.map(({ cat: c }) => (
+            <button
+              key={c}
+              className={"fpill" + (filterCat === c ? " on c-" + c : "")}
+              onClick={() => setFilterCat(c)}
+            >
+              {t("cat." + c)}
+            </button>
+          ))}
+        </div>
       </div>
+
+      {/* list */}
+      {db.logs.length === 0 ? (
+        <div className="card">
+          <div className="empty">{t("log.empty")}</div>
+        </div>
+      ) : dayKeys.length === 0 ? (
+        <div className="card">
+          <div className="empty">{t("log.noMatch")}</div>
+        </div>
+      ) : (
+        dayKeys.map((day) => (
+          <div className="daygroup" key={day}>
+            <div className="dayhead">
+              <span className="dayhead-label">{dayLabel(day)}</span>
+              <span className="dayhead-rule" />
+              <span className="dayhead-count">{groups[day].length}</span>
+            </div>
+            {groups[day].map((e) =>
+              editId === e.id ? (
+                <div className="logentry editing" key={e.id}>
+                  <select
+                    className="filtersel"
+                    value={editCat}
+                    onChange={(ev) => setEditCat(ev.target.value as Category)}
+                  >
+                    {CATEGORIES.map(({ cat: c }) => (
+                      <option key={c} value={c}>
+                        {EMOJI[c]} {t("cat." + c)}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    className="searchbox"
+                    value={editText}
+                    autoFocus
+                    onChange={(ev) => setEditText(ev.target.value)}
+                    onKeyDown={(ev) => {
+                      if (ev.key === "Enter") saveEdit();
+                      if (ev.key === "Escape") setEditId(null);
+                    }}
+                  />
+                  <button className="btn sm" onClick={saveEdit}>
+                    ✓
+                  </button>
+                  <button className="btn ghost sm" onClick={() => setEditId(null)}>
+                    ✕
+                  </button>
+                </div>
+              ) : (
+                <div className="logentry" key={e.id}>
+                  <div className="le-time">{fmtTime(e.ts)}</div>
+                  <div className="le-main">
+                    <div className="le-text">
+                      <Highlight text={e.text} q={q} />
+                    </div>
+                    <span className={"le-badge b-" + e.cat}>
+                      <span className="le-dot" />
+                      {t("cat." + e.cat)}
+                    </span>
+                  </div>
+                  <div className="le-menu-wrap">
+                    <button
+                      className="le-menu"
+                      title={t("c.edit")}
+                      onClick={(ev) => {
+                        ev.stopPropagation();
+                        setMenuId((m) => (m === e.id ? null : e.id));
+                      }}
+                    >
+                      ⋮
+                    </button>
+                    {menuId === e.id && (
+                      <div
+                        className="le-menu-pop"
+                        onClick={(ev) => ev.stopPropagation()}
+                      >
+                        <button
+                          onClick={() => {
+                            setMenuId(null);
+                            startEdit(e);
+                          }}
+                        >
+                          ✏️ {t("c.edit")}
+                        </button>
+                        <button
+                          className="danger"
+                          onClick={() => {
+                            setMenuId(null);
+                            if (confirm(t("dlg.delEntry"))) delLog(e.id);
+                          }}
+                        >
+                          🗑️ {t("c.delete")}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+        ))
+      )}
     </>
   );
 }

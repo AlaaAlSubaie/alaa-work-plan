@@ -2,20 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useLang } from "@/lib/i18n";
+import { supabase } from "@/lib/supabase";
 
-const KEY = "aw-auth";
-
-function hashCode(s: string) {
-  let h = 5381;
-  for (let i = 0; i < s.length; i++) h = (h * 33) ^ s.charCodeAt(i);
-  return (h >>> 0).toString(16);
-}
-function confirm0(msg: string) {
-  return typeof window !== "undefined" ? window.confirm(msg) : false;
-}
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const ICONS: Record<string, string> = {
   user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  mail: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
   lock: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
   eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
   eyeOff:
@@ -64,33 +57,20 @@ const WHOS = {
   ar: ["س.خ", "ع.د", "ع.م", "ل.ه", "ع.م"],
 };
 
-interface Stored {
-  name: string;
-  hash: string;
-}
-
-export default function Lock({ onUnlock }: { onUnlock: (keep: boolean) => void }) {
+export default function Lock() {
   const { t, lang, setLang } = useLang();
-  const [ready, setReady] = useState(false);
-  const [stored, setStored] = useState<Stored | null>(null);
+  const [isSetup, setIsSetup] = useState(false); // false = sign in, true = create account
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [confirm, setConfirm] = useState("");
   const [show, setShow] = useState(false);
   const [keep, setKeep] = useState(true);
   const [err, setErr] = useState("");
+  const [info, setInfo] = useState("");
+  const [busy, setBusy] = useState(false);
   const [doneN, setDoneN] = useState(0);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) setStored(JSON.parse(raw));
-    } catch {
-      /* ignore */
-    }
-    setReady(true);
-  }, []);
 
   const tasks = lang === "ar" ? TASKS.ar : TASKS.en;
   const whos = lang === "ar" ? WHOS.ar : WHOS.en;
@@ -101,9 +81,6 @@ export default function Lock({ onUnlock }: { onUnlock: (keep: boolean) => void }
     return () => clearInterval(id);
   }, [TOTAL]);
 
-  if (!ready) return <div className="login-stage" />;
-
-  const isSetup = !stored;
   const pct = Math.round((doneN / TOTAL) * 100);
   const C = 2 * Math.PI * 21;
 
@@ -115,36 +92,69 @@ export default function Lock({ onUnlock }: { onUnlock: (keep: boolean) => void }
     });
   };
 
-  const submit = () => {
+  // remember the "keep me signed in" choice (read back in app/page.tsx)
+  const rememberKeep = (k: boolean) => {
+    try {
+      localStorage.setItem("aw-keep", k ? "1" : "0");
+      sessionStorage.setItem("aw-active", "1");
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const submit = async () => {
+    if (busy) return;
     setErr("");
-    if (isSetup) {
-      if (!name.trim()) return setErr(t("lock.errName"));
-      if (pass.length < 4) return setErr(t("lock.errShort"));
-      if (pass !== confirm) return setErr(t("lock.errMatch"));
-      localStorage.setItem(KEY, JSON.stringify({ name: name.trim(), hash: hashCode(pass) }));
-      onUnlock(false);
-    } else {
-      if (hashCode(pass) === stored!.hash) onUnlock(keep);
-      else setErr(t("lock.errWrong"));
+    setInfo("");
+    if (!EMAIL_RE.test(email.trim())) return setErr(t("lock.errEmail"));
+    if (pass.length < 6) return setErr(t("lock.errPwShort"));
+
+    setBusy(true);
+    try {
+      if (isSetup) {
+        if (!name.trim()) return setErr(t("lock.errName"));
+        if (pass !== confirm) return setErr(t("lock.errMatch"));
+        const { data, error } = await supabase.auth.signUp({
+          email: email.trim(),
+          password: pass,
+          options: { data: { name: name.trim() } },
+        });
+        if (error) return setErr(error.message);
+        rememberKeep(keep);
+        if (!data.session) {
+          // email confirmation is on — let the user know and flip to sign in
+          setInfo(t("lock.checkEmail"));
+          setIsSetup(false);
+          setPass("");
+          setConfirm("");
+        }
+        // if a session exists, onAuthStateChange in the shell unlocks the app
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password: pass,
+        });
+        if (error) {
+          return setErr(
+            /confirm/i.test(error.message) ? t("lock.errUnconfirmed") : t("lock.errWrong")
+          );
+        }
+        rememberKeep(keep);
+        // onAuthStateChange unlocks the app
+      }
+    } finally {
+      setBusy(false);
     }
   };
 
-  const reset = () => {
-    if (confirm0(t("lock.resetConfirm"))) {
-      localStorage.removeItem(KEY);
-      localStorage.removeItem("aw-keep");
-      setStored(null);
-      setPass("");
-      setConfirm("");
-      setErr("");
-    }
+  const toggleMode = () => {
+    setIsSetup((s) => !s);
+    setErr("");
+    setInfo("");
+    setConfirm("");
   };
 
-  const title = isSetup
-    ? t("lock.setupTitle")
-    : stored?.name
-    ? t("lock.hello", { name: stored.name })
-    : t("lock.welcome");
+  const title = isSetup ? t("lock.setupTitle") : t("lock.welcome");
 
   return (
     <div className="login-stage">
@@ -265,7 +275,29 @@ export default function Lock({ onUnlock }: { onUnlock: (keep: boolean) => void }
           )}
 
           <label className="lk-field">
-            <span className="lk-label">{t("lock.passcode")}</span>
+            <span className="lk-label">{t("lock.email")}</span>
+            <span className="lk-wrap">
+              <span className="lk-lead">
+                <Icon name="mail" />
+              </span>
+              <input
+                className="lk-input"
+                type="email"
+                autoComplete="email"
+                inputMode="email"
+                value={email}
+                autoFocus={!isSetup}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") submit();
+                }}
+                placeholder="name@example.com"
+              />
+            </span>
+          </label>
+
+          <label className="lk-field">
+            <span className="lk-label">{t("lock.password")}</span>
             <span className="lk-wrap">
               <span className="lk-lead">
                 <Icon name="lock" />
@@ -273,14 +305,13 @@ export default function Lock({ onUnlock }: { onUnlock: (keep: boolean) => void }
               <input
                 className="lk-input"
                 type={show ? "text" : "password"}
-                inputMode="numeric"
+                autoComplete={isSetup ? "new-password" : "current-password"}
                 value={pass}
-                autoFocus={!isSetup}
                 onChange={(e) => setPass(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !isSetup) submit();
                 }}
-                placeholder={t("lock.passcode")}
+                placeholder={t("lock.password")}
               />
               <button type="button" className="lk-eye" onClick={() => setShow((s) => !s)} aria-label="toggle">
                 <Icon name={show ? "eyeOff" : "eye"} />
@@ -290,7 +321,7 @@ export default function Lock({ onUnlock }: { onUnlock: (keep: boolean) => void }
 
           {isSetup && (
             <label className="lk-field">
-              <span className="lk-label">{t("lock.confirm")}</span>
+              <span className="lk-label">{t("lock.confirmPw")}</span>
               <span className="lk-wrap">
                 <span className="lk-lead">
                   <Icon name="lock" />
@@ -298,35 +329,34 @@ export default function Lock({ onUnlock }: { onUnlock: (keep: boolean) => void }
                 <input
                   className="lk-input"
                   type={show ? "text" : "password"}
-                  inputMode="numeric"
+                  autoComplete="new-password"
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") submit();
                   }}
-                  placeholder={t("lock.confirm")}
+                  placeholder={t("lock.confirmPw")}
                 />
               </span>
             </label>
           )}
 
-          {!isSetup && (
-            <div className="row-between">
-              <label className="lk-keep">
-                <input type="checkbox" checked={keep} onChange={(e) => setKeep(e.target.checked)} />
-                {t("login.keep")}
-              </label>
-              <button className="lk-link" onClick={reset}>
-                {t("lock.forgot")}
-              </button>
-            </div>
-          )}
+          <div className="row-between">
+            <label className="lk-keep">
+              <input type="checkbox" checked={keep} onChange={(e) => setKeep(e.target.checked)} />
+              {t("login.keep")}
+            </label>
+            <button className="lk-link" onClick={toggleMode}>
+              {isSetup ? t("lock.haveAccount") : t("lock.needAccount")}
+            </button>
+          </div>
 
           {err && <div className="lock-err">{err}</div>}
+          {info && <div className="lock-info">{info}</div>}
 
-          <button className="btn lk-submit" onClick={submit}>
-            {isSetup ? t("lock.create") : t("lock.unlock")}
-            <Icon name="arrowRight" />
+          <button className="btn lk-submit" onClick={submit} disabled={busy}>
+            {busy ? t("lock.working") : isSetup ? t("lock.create") : t("lock.unlock")}
+            {!busy && <Icon name="arrowRight" />}
           </button>
 
           <p className="lk-foot-mobile">{t("foot.copyright")}</p>

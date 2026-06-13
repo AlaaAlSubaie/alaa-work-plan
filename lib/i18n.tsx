@@ -51,28 +51,23 @@ export const T: Record<string, Entry> = {
   "login.report": { en: "Report ready", ar: "التقرير جاهز" },
   "login.streak": { en: "12-day streak", ar: "١٢ يوم متواصل" },
 
-  // ---- lock screen ----
+  // ---- lock / auth screen ----
   "lock.welcome": { en: "Welcome back", ar: "هلا والله، رجعتي" },
   "lock.hello": { en: "Hello, {name}", ar: "هلا، {name}" },
-  "lock.setupTitle": { en: "Set a passcode", ar: "سوِّ رمز دخول" },
-  "lock.setupSub": {
-    en: "Protect your work plan on this device.",
-    ar: "احمي خطة شغلك على هذا الجهاز.",
-  },
-  "lock.enterSub": { en: "Enter your passcode to continue.", ar: "دخّلي رمز الدخول عشان تكمّلين." },
-  "lock.passcode": { en: "Passcode", ar: "رمز الدخول" },
-  "lock.confirm": { en: "Confirm passcode", ar: "أكّدي رمز الدخول" },
-  "lock.unlock": { en: "Unlock", ar: "دخول" },
-  "lock.create": { en: "Create & enter", ar: "سوّي وادخلي" },
-  "lock.errName": { en: "Enter your name", ar: "دخّلي اسمك" },
-  "lock.errShort": { en: "Passcode must be at least 4 characters", ar: "الرمز لازم ٤ خانات على الأقل" },
-  "lock.errMatch": { en: "Passcodes don't match", ar: "الرمزين مو متطابقين" },
-  "lock.errWrong": { en: "Wrong passcode", ar: "الرمز غلط" },
-  "lock.forgot": { en: "Forgot passcode? Reset", ar: "ناسية الرمز؟ صفّريه" },
-  "lock.resetConfirm": {
-    en: "Reset the passcode? Your data stays on this device.",
-    ar: "تبين تصفّرين الرمز؟ بياناتك بتظل على هذا الجهاز.",
-  },
+  "lock.setupTitle": { en: "Create your account", ar: "سوّي حسابك" },
+  "lock.setupSub": { en: "Sign up to your workspace.", ar: "سجّلي بمساحة شغلك." },
+  "lock.enterSub": { en: "Sign in to continue.", ar: "سجّلي دخولك عشان تكمّلين." },
+  "lock.email": { en: "Email", ar: "البريد الإلكتروني" },
+  "lock.password": { en: "Password", ar: "كلمة السر" },
+  "lock.confirmPw": { en: "Confirm password", ar: "أكّدي كلمة السر" },
+  "lock.errEmail": { en: "Enter a valid email", ar: "دخّلي إيميل صحيح" },
+  "lock.errPwShort": { en: "Password must be at least 6 characters", ar: "كلمة السر لازم \u0666 أحرف على الأقل" },
+  "lock.errUnconfirmed": { en: "Confirm your email first — check your inbox", ar: "أكّدي إيميلك أول — شوفي بريدك" },
+  "lock.checkEmail": { en: "Account created — check your email to confirm.", ar: "انفتح الحساب — شوفي إيميلك عشان تأكّدين." },
+  "lock.needAccount": { en: "Don't have an account? Create one", ar: "ما عندك حساب؟ سوّي وحد" },
+  "lock.haveAccount": { en: "Already have an account? Sign in", ar: "عندك حساب؟ سجّلي دخولك" },
+  "lock.working": { en: "Working…", ar: "لحظة…" },
+  "lock.signOut": { en: "Sign out", ar: "خروج" },
 
   // ---- tabs ----
   "tab.dashboard": { en: "Dashboard", ar: "اللوحة" },
@@ -115,6 +110,8 @@ export const T: Record<string, Entry> = {
   "c.who": { en: "— who —", ar: "— منو —" },
   "c.copy": { en: "Copy", ar: "انسخي" },
   "c.open": { en: "Open", ar: "افتحي" },
+  "c.edit": { en: "Edit", ar: "تعديل" },
+  "c.delete": { en: "Delete", ar: "حذف" },
 
   // ---- categories ----
   "cat.Achievement": { en: "Achievement", ar: "إنجاز" },
@@ -164,6 +161,9 @@ export const T: Record<string, Entry> = {
     ar: "ضيفيها بعد لأجندة اليوم",
   },
   "log.noMatch": { en: "No entries match your search 🔍", ar: "ما في مدخلات تطابق بحثك 🔍" },
+  "log.all": { en: "All", ar: "الكل" },
+  "log.yesterday": { en: "Yesterday", ar: "أمس" },
+  "log.newEntry": { en: "New entry", ar: "مدخل جديد" },
 
   // ---- Agenda ----
   "ag.title": { en: "Daily agenda", ar: "الأجندة اليومية" },
@@ -207,6 +207,12 @@ export const T: Record<string, Entry> = {
   "pr.addIssuePh": { en: "Add an issue…", ar: "ضيفي ملاحظة…" },
   "pr.noIssues": { en: "No issues logged.", ar: "ما في ملاحظات مسجّلة." },
   "pr.project": { en: "— project —", ar: "— المشروع —" },
+  "pr.active": { en: "{n} active across {c} columns", ar: "{n} نشِط في {c} أعمدة" },
+  "pr.oneIssue": { en: "1 issue", ar: "ملاحظة وحدة" },
+  "pr.nIssues": { en: "{n} issues", ar: "{n} ملاحظات" },
+  "pr.addToCol": { en: "Add a project to {col}", ar: "ضيفي مشروع إلى {col}" },
+  "pr.issueOpen": { en: "Open", ar: "مفتوحة" },
+  "pr.issueResolved": { en: "Resolved", ar: "محلولة" },
 
   // ---- reminders ----
   "rem.head": { en: "Reminders — {n} project(s) need attention", ar: "تذكيرات — {n} مشروع يبيله انتباه" },

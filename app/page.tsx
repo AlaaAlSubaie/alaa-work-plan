@@ -5,6 +5,7 @@ import { useStore } from "@/lib/store";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { useLang } from "@/lib/i18n";
 import { DB } from "@/lib/types";
+import { supabase } from "@/lib/supabase";
 import Lock from "@/components/Lock";
 import Dashboard from "@/components/Dashboard";
 import DailyLog from "@/components/DailyLog";
@@ -38,6 +39,15 @@ function LangToggle() {
 function Header() {
   const { db, setMeta } = useStore();
   const { t } = useLang();
+  const signOut = async () => {
+    try {
+      localStorage.setItem("aw-keep", "0");
+      sessionStorage.removeItem("aw-active");
+    } catch {
+      /* ignore */
+    }
+    await supabase.auth.signOut();
+  };
   return (
     <header className="app-header">
       <div className="head-row">
@@ -48,6 +58,9 @@ function Header() {
         </div>
         <div className="head-spacer"></div>
         <LangToggle />
+        <button className="btn ghost sm signout-btn" onClick={signOut}>
+          {t("lock.signOut")}
+        </button>
         <div className="head-fields">
           <input
             placeholder={t("app.dept")}
@@ -150,16 +163,36 @@ function todayISO() {
 function Shell() {
   const [tab, setTab] = useState<Tab>("dashboard");
   const [unlocked, setUnlocked] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
   const { db, loaded } = useStore();
   const { t } = useLang();
 
-  // "keep me signed in" — skip the lock if previously chosen
+  // Auth gate driven by the Supabase session
   useEffect(() => {
-    try {
-      if (localStorage.getItem("aw-keep") === "1") setUnlocked(true);
-    } catch {
-      /* ignore */
-    }
+    let active = true;
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!active) return;
+      const session = data.session;
+      // honor "keep me signed in": if the user opted out and this is a fresh
+      // browser session (new tab/window), sign them back out.
+      const keep = localStorage.getItem("aw-keep") !== "0";
+      const freshTab = !sessionStorage.getItem("aw-active");
+      if (session && !keep && freshTab) {
+        await supabase.auth.signOut();
+        setUnlocked(false);
+      } else {
+        setUnlocked(!!session);
+      }
+      sessionStorage.setItem("aw-active", "1");
+      setAuthReady(true);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (active) setUnlocked(!!session);
+    });
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   // Daily reminder notification (once per day, when the app is open & permission granted)
@@ -194,19 +227,8 @@ function Shell() {
     }
   }, [loaded, db, unlocked]);
 
-  if (!unlocked)
-    return (
-      <Lock
-        onUnlock={(keep) => {
-          try {
-            if (keep) localStorage.setItem("aw-keep", "1");
-          } catch {
-            /* ignore */
-          }
-          setUnlocked(true);
-        }}
-      />
-    );
+  if (!authReady) return <div className="login-stage" />;
+  if (!unlocked) return <Lock />;
 
   return (
     <>
