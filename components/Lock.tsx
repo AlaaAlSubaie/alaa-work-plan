@@ -60,13 +60,11 @@ const WHOS = {
 export default function Lock() {
   const { t, lang, setLang } = useLang();
   // Sign-in only — public registration is disabled (single-user app).
-  const [mode, setMode] = useState<"signin" | "forgot">("signin");
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [show, setShow] = useState(false);
   const [keep, setKeep] = useState(true);
   const [err, setErr] = useState("");
-  const [info, setInfo] = useState("");
   const [busy, setBusy] = useState(false);
   const [doneN, setDoneN] = useState(0);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -125,31 +123,7 @@ export default function Lock() {
     }
   };
 
-  // email a secure password-reset link to the registered address
-  const sendReset = async () => {
-    if (busy) return;
-    setErr("");
-    setInfo("");
-    if (!EMAIL_RE.test(email.trim())) return setErr(t("lock.errEmail"));
-    setBusy(true);
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: window.location.origin,
-      });
-      if (error) return setErr(error.message);
-      setInfo(t("lock.resetSent"));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const switchMode = (m: "signin" | "forgot") => {
-    setMode(m);
-    setErr("");
-    setInfo("");
-  };
-
-  const title = mode === "forgot" ? t("lock.forgotTitle") : t("lock.welcome");
+  const title = t("lock.welcome");
 
   return (
     <div className="login-stage">
@@ -250,7 +224,7 @@ export default function Lock() {
         <div className="login-card">
           <p className="login-label">{t("login.label")}</p>
           <h1>{title}</h1>
-          <p className="sub">{mode === "forgot" ? t("lock.forgotSub") : t("login.sub")}</p>
+          <p className="sub">{t("login.sub")}</p>
 
           <label className="lk-field">
             <span className="lk-label">{t("lock.email")}</span>
@@ -267,69 +241,49 @@ export default function Lock() {
                 autoFocus
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") (mode === "forgot" ? sendReset() : submit());
+                  if (e.key === "Enter") submit();
                 }}
                 placeholder="name@example.com"
               />
             </span>
           </label>
 
-          {mode === "signin" && (
-            <>
-              <label className="lk-field">
-                <span className="lk-label">{t("lock.password")}</span>
-                <span className="lk-wrap">
-                  <span className="lk-lead">
-                    <Icon name="lock" />
-                  </span>
-                  <input
-                    className="lk-input"
-                    type={show ? "text" : "password"}
-                    autoComplete="current-password"
-                    value={pass}
-                    onChange={(e) => setPass(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") submit();
-                    }}
-                    placeholder={t("lock.password")}
-                  />
-                  <button type="button" className="lk-eye" onClick={() => setShow((s) => !s)} aria-label="toggle">
-                    <Icon name={show ? "eyeOff" : "eye"} />
-                  </button>
-                </span>
-              </label>
+          <label className="lk-field">
+            <span className="lk-label">{t("lock.password")}</span>
+            <span className="lk-wrap">
+              <span className="lk-lead">
+                <Icon name="lock" />
+              </span>
+              <input
+                className="lk-input"
+                type={show ? "text" : "password"}
+                autoComplete="current-password"
+                value={pass}
+                onChange={(e) => setPass(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") submit();
+                }}
+                placeholder={t("lock.password")}
+              />
+              <button type="button" className="lk-eye" onClick={() => setShow((s) => !s)} aria-label="toggle">
+                <Icon name={show ? "eyeOff" : "eye"} />
+              </button>
+            </span>
+          </label>
 
-              <div className="row-between">
-                <label className="lk-keep">
-                  <input type="checkbox" checked={keep} onChange={(e) => setKeep(e.target.checked)} />
-                  {t("login.keep")}
-                </label>
-                <button className="lk-link" onClick={() => switchMode("forgot")}>
-                  {t("lock.forgot")}
-                </button>
-              </div>
-            </>
-          )}
+          <div className="row-between">
+            <label className="lk-keep">
+              <input type="checkbox" checked={keep} onChange={(e) => setKeep(e.target.checked)} />
+              {t("login.keep")}
+            </label>
+          </div>
 
           {err && <div className="lock-err">{err}</div>}
-          {info && <div className="lock-info">{info}</div>}
 
-          {mode === "signin" ? (
-            <button className="btn lk-submit" onClick={submit} disabled={busy}>
-              {busy ? t("lock.working") : t("lock.unlock")}
-              {!busy && <Icon name="arrowRight" />}
-            </button>
-          ) : (
-            <>
-              <button className="btn lk-submit" onClick={sendReset} disabled={busy}>
-                {busy ? t("lock.working") : t("lock.sendReset")}
-                {!busy && <Icon name="mail" />}
-              </button>
-              <button className="lk-link lk-back" onClick={() => switchMode("signin")}>
-                {t("lock.backToSignIn")}
-              </button>
-            </>
-          )}
+          <button className="btn lk-submit" onClick={submit} disabled={busy}>
+            {busy ? t("lock.working") : t("lock.unlock")}
+            {!busy && <Icon name="arrowRight" />}
+          </button>
 
           <p className="lk-foot-mobile">{t("foot.copyright")}</p>
         </div>
