@@ -7,6 +7,7 @@ import { useLang } from "@/lib/i18n";
 import { DB } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 import Lock from "@/components/Lock";
+import ResetPassword from "@/components/ResetPassword";
 import Dashboard from "@/components/Dashboard";
 import DailyLog from "@/components/DailyLog";
 import Agenda from "@/components/Agenda";
@@ -164,6 +165,7 @@ function Shell() {
   const [tab, setTab] = useState<Tab>("dashboard");
   const [unlocked, setUnlocked] = useState(false);
   const [authReady, setAuthReady] = useState(false);
+  const [recovery, setRecovery] = useState(false);
   const { db, loaded } = useStore();
   const { t } = useLang();
 
@@ -186,8 +188,11 @@ function Shell() {
       sessionStorage.setItem("aw-active", "1");
       setAuthReady(true);
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (active) setUnlocked(!!session);
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!active) return;
+      // arriving via a password-reset link: force the "set new password" screen
+      if (event === "PASSWORD_RECOVERY") setRecovery(true);
+      setUnlocked(!!session);
     });
     return () => {
       active = false;
@@ -228,6 +233,7 @@ function Shell() {
   }, [loaded, db, unlocked]);
 
   if (!authReady) return <div className="login-stage" />;
+  if (recovery) return <ResetPassword onDone={() => setRecovery(false)} />;
   if (!unlocked) return <Lock />;
 
   return (

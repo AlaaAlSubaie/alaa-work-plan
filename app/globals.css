@@ -246,6 +246,8 @@ body {
 .lock-info { font-size: 13.5px; font-weight: 600; color: var(--status-done-fg); background: var(--status-done-bg); border-radius: var(--radius-sm); padding: 9px 12px; margin-bottom: 6px; }
 .lk-submit:disabled { opacity: 0.6; cursor: default; }
 .signout-btn { white-space: nowrap; }
+.reset-stage { grid-template-columns: 1fr; }
+.lk-back { display: block; margin: 14px auto 0; text-align: center; }
 @media (prefers-reduced-motion: reduce) {
   .brand, .eyebrow .rule, .chip--report, .chip--streak, .login-card { animation: none !important; }
 }

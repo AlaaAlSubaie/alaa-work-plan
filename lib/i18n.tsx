@@ -68,6 +68,28 @@ export const T: Record<string, Entry> = {
   "lock.haveAccount": { en: "Already have an account? Sign in", ar: "عندك حساب؟ سجّلي دخولك" },
   "lock.working": { en: "Working…", ar: "لحظة…" },
   "lock.signOut": { en: "Sign out", ar: "خروج" },
+  "lock.unlock": { en: "Sign in", ar: "تسجيل الدخول" },
+  "lock.errWrong": { en: "Wrong email or password", ar: "الإيميل أو كلمة السر غلط" },
+  "lock.errMatch": { en: "Passwords don't match", ar: "كلمتا السر مو متطابقتين" },
+  "lock.forgot": { en: "Forgot password?", ar: "نسيت كلمة السر؟" },
+  "lock.forgotTitle": { en: "Reset password", ar: "إعادة تعيين كلمة السر" },
+  "lock.forgotSub": {
+    en: "Enter your email and we'll send you a reset link.",
+    ar: "دخّلي إيميلك ونرسل لك رابط لإعادة التعيين.",
+  },
+  "lock.sendReset": { en: "Send reset link", ar: "أرسل رابط التعيين" },
+  "lock.resetSent": {
+    en: "Check your email for a link to set a new password.",
+    ar: "شوفي بريدك، وصلك رابط لتعيين كلمة سر جديدة.",
+  },
+  "lock.backToSignIn": { en: "Back to sign in", ar: "رجوع لتسجيل الدخول" },
+  "lock.newPassTitle": { en: "Set a new password", ar: "عيّن كلمة سر جديدة" },
+  "lock.newPassSub": {
+    en: "Choose a new password for your account.",
+    ar: "اختاري كلمة سر جديدة لحسابك.",
+  },
+  "lock.newPassword": { en: "New password", ar: "كلمة السر الجديدة" },
+  "lock.savePassword": { en: "Save password", ar: "حفظ كلمة السر" },
 
   // ---- tabs ----
   "tab.dashboard": { en: "Dashboard", ar: "اللوحة" },
