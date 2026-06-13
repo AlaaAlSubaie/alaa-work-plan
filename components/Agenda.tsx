@@ -283,6 +283,7 @@ export default function Agenda() {
               />
               <span className="carry-date">{shortDate(a.date)}</span>
               {a.time && <span className="agtimebadge">{a.time}</span>}
+              {a.cat && <span className={"badge b-" + a.cat}>{t("cat." + a.cat)}</span>}
               <span className="agitemtext">{a.text}</span>
               <span className="acts">
                 <button
@@ -357,6 +358,7 @@ export default function Agenda() {
                 onChange={() => toggleAgenda(a.id)}
               />
               {a.time && <span className="agtimebadge">{a.time}</span>}
+              {a.cat && <span className={"badge b-" + a.cat}>{t("cat." + a.cat)}</span>}
               <span className="agitemtext">{a.text}</span>
               <span className="acts">
                 <button

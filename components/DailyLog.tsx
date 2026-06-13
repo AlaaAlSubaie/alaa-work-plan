@@ -73,7 +73,7 @@ export default function DailyLog() {
   const submit = () => {
     if (!input.trim()) return;
     addLog(input, cat);
-    if (toAgenda) addAgenda(todayISO(), input.trim(), "");
+    if (toAgenda) addAgenda(todayISO(), input.trim(), "", cat);
     setInput("");
   };
   const onKey = (e: KeyboardEvent<HTMLTextAreaElement>) => {

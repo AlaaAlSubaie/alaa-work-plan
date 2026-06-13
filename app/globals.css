@@ -734,6 +734,17 @@ mark {
   line-height: 1.35;
   word-break: break-word;
 }
+.taskedit {
+  flex: 1;
+  min-width: 120px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  box-shadow: var(--ring);
+}
 .subrow.done .subtext {
   text-decoration: line-through;
   color: var(--muted);

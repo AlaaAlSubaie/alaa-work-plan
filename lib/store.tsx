@@ -17,6 +17,7 @@ import {
   AgendaItem,
   SavedReport,
   Employee,
+  Category,
   Meta,
 } from "./types";
 
@@ -62,11 +63,12 @@ interface StoreCtx {
     taskId: string,
     priority: ProjectTask["priority"]
   ) => void;
+  editProjectTask: (projectId: string, taskId: string, text: string) => void;
   delProjectTask: (projectId: string, taskId: string) => void;
   addProjectIssue: (projectId: string, text: string) => void;
   toggleProjectIssue: (projectId: string, issueId: string) => void;
   delProjectIssue: (projectId: string, issueId: string) => void;
-  addAgenda: (date: string, text: string, time: string) => void;
+  addAgenda: (date: string, text: string, time: string, cat?: Category) => void;
   toggleAgenda: (id: string) => void;
   editAgenda: (id: string, text: string, time: string) => void;
   delAgenda: (id: string) => void;
@@ -279,6 +281,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     []
   );
 
+  const editProjectTask = useCallback(
+    (projectId: string, taskId: string, text: string) => {
+      const v = text.trim();
+      if (!v) return;
+      setDb((d) =>
+        patchProject(d, projectId, (p) => ({
+          ...p,
+          tasks: p.tasks.map((t) => (t.id === taskId ? { ...t, text: v } : t)),
+        }))
+      );
+    },
+    []
+  );
+
   const delProjectTask = useCallback((projectId: string, taskId: string) => {
     setDb((d) =>
       patchProject(d, projectId, (p) => ({
@@ -322,17 +338,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
-  const addAgenda = useCallback((date: string, text: string, time: string) => {
-    const t = text.trim();
-    if (!t || !date) return;
-    setDb((d) => ({
-      ...d,
-      agenda: [
-        ...d.agenda,
-        { id: uid(), date, text: t, time, done: false, ts: Date.now() },
-      ],
-    }));
-  }, []);
+  const addAgenda = useCallback(
+    (date: string, text: string, time: string, cat?: Category) => {
+      const t = text.trim();
+      if (!t || !date) return;
+      setDb((d) => ({
+        ...d,
+        agenda: [
+          ...d.agenda,
+          { id: uid(), date, text: t, time, done: false, ts: Date.now(), cat },
+        ],
+      }));
+    },
+    []
+  );
 
   const toggleAgenda = useCallback((id: string) => {
     setDb((d) => ({
@@ -440,6 +459,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setProjectTaskStatus,
         setProjectTaskAssignee,
         setProjectTaskPriority,
+        editProjectTask,
         delProjectTask,
         addProjectIssue,
         toggleProjectIssue,

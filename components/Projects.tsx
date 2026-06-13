@@ -56,6 +56,7 @@ function ProjectDetail({ p }: { p: Project }) {
     setProjectTaskStatus,
     setProjectTaskAssignee,
     setProjectTaskPriority,
+    editProjectTask,
     delProjectTask,
     addProjectIssue,
     toggleProjectIssue,
@@ -66,6 +67,12 @@ function ProjectDetail({ p }: { p: Project }) {
   const [task, setTask] = useState("");
   const [taskWho, setTaskWho] = useState("");
   const [issue, setIssue] = useState("");
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
+  const saveTaskEdit = () => {
+    if (editId && editText.trim()) editProjectTask(p.id, editId, editText);
+    setEditId(null);
+  };
 
   const addTask = () => {
     if (!task.trim()) return;
@@ -205,11 +212,29 @@ function ProjectDetail({ p }: { p: Project }) {
               >
                 {t(pillKey(tk.status))}
               </button>
-              <span
-                className={"subtext" + (tk.status === "Completed" ? " done" : "")}
-              >
-                {tk.text}
-              </span>
+              {editId === tk.id ? (
+                <input
+                  className="taskedit"
+                  value={editText}
+                  autoFocus
+                  onChange={(e) => setEditText(e.target.value)}
+                  onBlur={saveTaskEdit}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") saveTaskEdit();
+                    if (e.key === "Escape") setEditId(null);
+                  }}
+                />
+              ) : (
+                <span
+                  className={"subtext" + (tk.status === "Completed" ? " done" : "")}
+                  onDoubleClick={() => {
+                    setEditId(tk.id);
+                    setEditText(tk.text);
+                  }}
+                >
+                  {tk.text}
+                </span>
+              )}
               <select
                 className="taskassign"
                 value={tk.assignee}
@@ -235,6 +260,16 @@ function ProjectDetail({ p }: { p: Project }) {
                   </button>
                 ))}
               </span>
+              <button
+                className="iconbtn"
+                title="Edit name"
+                onClick={() => {
+                  setEditId(tk.id);
+                  setEditText(tk.text);
+                }}
+              >
+                ✏️
+              </button>
               <button
                 className="iconbtn"
                 title="Delete"

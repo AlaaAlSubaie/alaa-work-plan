@@ -53,6 +53,7 @@ export default function Team() {
     setProjectTaskStatus,
     setProjectTaskAssignee,
     setProjectTaskPriority,
+    editProjectTask,
     addProjectTask,
     delProjectTask,
   } = useStore();
@@ -61,6 +62,8 @@ export default function Team() {
   // which employee's details are open: employee id, "unassigned", or null
   const [open, setOpen] = useState<string | null>(null);
   const [addText, setAddText] = useState<Record<string, string>>({});
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
 
   // close on Escape
   useEffect(() => {
@@ -175,13 +178,40 @@ export default function Team() {
                           >
                             {t(pillKey(tk.status))}
                           </button>
-                          <span
-                            className={
-                              "subtext" + (tk.status === "Completed" ? " done" : "")
-                            }
-                          >
-                            {tk.text}
-                          </span>
+                          {editId === tk.id ? (
+                            <input
+                              className="taskedit"
+                              value={editText}
+                              autoFocus
+                              onChange={(ev) => setEditText(ev.target.value)}
+                              onBlur={() => {
+                                if (editText.trim())
+                                  editProjectTask(p.id, tk.id, editText);
+                                setEditId(null);
+                              }}
+                              onKeyDown={(ev) => {
+                                if (ev.key === "Enter") {
+                                  if (editText.trim())
+                                    editProjectTask(p.id, tk.id, editText);
+                                  setEditId(null);
+                                }
+                                if (ev.key === "Escape") setEditId(null);
+                              }}
+                            />
+                          ) : (
+                            <span
+                              className={
+                                "subtext" +
+                                (tk.status === "Completed" ? " done" : "")
+                              }
+                              onDoubleClick={() => {
+                                setEditId(tk.id);
+                                setEditText(tk.text);
+                              }}
+                            >
+                              {tk.text}
+                            </span>
+                          )}
                           {isUnassigned && (
                             <select
                               className="taskassign"
@@ -216,6 +246,16 @@ export default function Team() {
                               </button>
                             ))}
                           </span>
+                          <button
+                            className="iconbtn"
+                            title="Edit name"
+                            onClick={() => {
+                              setEditId(tk.id);
+                              setEditText(tk.text);
+                            }}
+                          >
+                            ✏️
+                          </button>
                           <button
                             className="iconbtn"
                             title="Delete"

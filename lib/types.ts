@@ -59,6 +59,7 @@ export interface AgendaItem {
   time: string; // "" or "HH:MM"
   done: boolean;
   ts: number;
+  cat?: Category; // set when the item was created from a Daily Log entry
 }
 
 export interface SavedReport {
