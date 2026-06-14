@@ -4,10 +4,13 @@ import {
   createContext,
   useContext,
   useEffect,
+  useRef,
   useState,
   useCallback,
   ReactNode,
 } from "react";
+import { supabase } from "./supabase";
+import { loadDB, syncDB } from "./sync";
 import {
   DB,
   LogEntry,
@@ -91,7 +94,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [db, setDb] = useState<DB>(EMPTY);
   const [loaded, setLoaded] = useState(false);
 
-  // load once on mount (client only)
+  // Auth / cloud-sync coordination
+  const userIdRef = useRef<string | null>(null);
+  const cloudReadyRef = useRef(false); // true once we've hydrated from (or confirmed absence of) the cloud
+  const skipNextSync = useRef(false); // skip the change that came FROM a cloud load
+  const syncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // 1) Instant local load on mount — keeps local/offline runs working immediately.
   useEffect(() => {
     try {
       const raw = localStorage.getItem(KEY);
@@ -125,9 +134,59 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setLoaded(true);
   }, []);
 
-  // persist on every change after load
+  // 2) Cloud hydration — when signed in, Supabase is the source of truth.
   useEffect(() => {
-    if (loaded) localStorage.setItem(KEY, JSON.stringify(db));
+    let active = true;
+
+    const hydrate = async (uid: string | null) => {
+      userIdRef.current = uid;
+      if (uid) {
+        const cloud = await loadDB();
+        if (cloud && active) {
+          skipNextSync.current = true; // don't echo the cloud data straight back
+          setDb(cloud);
+        }
+      }
+      cloudReadyRef.current = true; // local edits may now sync safely
+    };
+
+    supabase.auth.getUser().then(({ data }) => {
+      if (active) hydrate(data.user?.id ?? null);
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!active) return;
+      if (event === "SIGNED_IN") {
+        cloudReadyRef.current = false;
+        hydrate(session?.user?.id ?? null);
+      } else if (event === "SIGNED_OUT") {
+        userIdRef.current = null;
+        cloudReadyRef.current = false; // back to local-only mode
+      }
+    });
+
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
+  // 3) Persist on every change: localStorage always (cache), Supabase when signed in.
+  useEffect(() => {
+    if (!loaded) return;
+    localStorage.setItem(KEY, JSON.stringify(db));
+
+    if (!userIdRef.current || !cloudReadyRef.current) return; // local-only
+    if (skipNextSync.current) {
+      skipNextSync.current = false;
+      return;
+    }
+    if (syncTimer.current) clearTimeout(syncTimer.current);
+    syncTimer.current = setTimeout(() => {
+      syncDB(db).catch(() => {
+        /* best-effort; localStorage already holds the change */
+      });
+    }, 700);
   }, [db, loaded]);
 
   const addLog = useCallback((text: string, cat: LogEntry["cat"]) => {
