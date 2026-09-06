@@ -1137,6 +1137,35 @@ mark {
 .pgrip:active {
   cursor: grabbing;
 }
+.pordbtns {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 1px;
+}
+.ordbtn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 9px;
+  line-height: 1;
+  cursor: pointer;
+  width: 16px;
+  height: 13px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ordbtn:hover:not(:disabled) {
+  background: var(--surface-sunken);
+  color: var(--text-primary);
+}
+.ordbtn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
 .pcard-titlewrap {
   flex: 1;
   min-width: 0;
@@ -1440,6 +1469,9 @@ mark {
   flex: 0 0 300px;
   width: 300px;
   scroll-snap-align: start;
+  max-height: 70vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 /* on wider screens let columns share the space when they all fit */
 @media (min-width: 1280px) {
