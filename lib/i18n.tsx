@@ -18,10 +18,10 @@ export const T: Record<string, Entry> = {
   "app.title": { en: "Department Organizer", ar: "منظّم القسم" },
   "app.sub": {
     en: "Log your day · Polished weekly report · Track every project",
-    ar: "سجلي يومك · تقرير أسبوعي حلو · تابعي كل مشاريعك",
+    ar: "دوّني يومك · تقرير أسبوعي حلو · تابعي كل مشاريعك",
   },
   "app.dept": { en: "Department name", ar: "اسم القسم" },
-  "app.user": { en: "Your name", ar: "الاسم" },
+  "app.user": { en: "Your name", ar: "اسمك" },
   "app.loading": { en: "Loading your data…", ar: "قاعد يحمّل بياناتك…" },
   "foot.note": {
     en: "Your data is saved automatically in this browser on this computer. Back it up regularly with Export — and use the same browser each time.",
@@ -125,8 +125,9 @@ export const T: Record<string, Entry> = {
   "c.clear": { en: "Clear", ar: "امسحي" },
   "c.today": { en: "Today", ar: "اليوم" },
   "c.who": { en: "— who —", ar: "— منو —" },
-  "c.copy": { en: "Copy", ar: "نسخي" },
-  "c.open": { en: "Open", ar: "فتحي" },
+  "c.assignLabel": { en: "Assign", ar: "تعيين" },
+  "c.copy": { en: "Copy", ar: "انسخي" },
+  "c.open": { en: "Open", ar: "افتحي" },
   "c.edit": { en: "Edit", ar: "تعديل" },
   "c.delete": { en: "Delete", ar: "حذف" },
 
@@ -138,21 +139,21 @@ export const T: Record<string, Entry> = {
   "cat.Note": { en: "Note", ar: "مذكرة" },
 
   // ---- stages ----
-  "stage.Upcoming": { en: "Upcoming", ar: "جديد" },
-  "stage.Progress": { en: "In Progress", ar: "قيد التقدم" },
-  "stage.Pending": { en: "Pending", ar: "انتظار" },
-  "stage.Testing": { en: "Testing", ar: "تحت التجربة" },
+  "stage.Upcoming": { en: "Upcoming", ar: "جاي" },
+  "stage.Progress": { en: "In Progress", ar: "شغّالة" },
+  "stage.Pending": { en: "Pending", ar: "بالانتظار" },
+  "stage.Testing": { en: "Testing", ar: "تحت الفحص" },
   "stage.Issues": { en: "Issues", ar: "ملاحظات" },
-  "stage.Completed": { en: "Completed", ar: "اكتمل" },
+  "stage.Completed": { en: "Completed", ar: "خالص" },
 
   // ---- task statuses ----
-  "ts.Pending": { en: "Pending", ar: "انتظار" },
-  "ts.Progress": { en: "In Progress", ar: "قيد التقدم" },
-  "ts.Done": { en: "Done", ar: "اكتمل" },
+  "ts.Pending": { en: "Pending", ar: "بالانتظار" },
+  "ts.Progress": { en: "In Progress", ar: "شغّالة" },
+  "ts.Done": { en: "Done", ar: "خالص" },
 
   // ---- task priority ----
   "prio.label": { en: "Priority", ar: "الأولوية" },
-  "prio.Low": { en: "Low", ar: "قليلة" },
+  "prio.Low": { en: "Low", ar: "واطية" },
   "prio.Medium": { en: "Medium", ar: "متوسطة" },
   "prio.High": { en: "High", ar: "عالية" },
 
@@ -160,14 +161,14 @@ export const T: Record<string, Entry> = {
   "log.capture": { en: "Quick capture", ar: "تدوين سريع" },
   "log.captureHint": {
     en: "Type fast in your own words — don't worry about grammar. Pick a category, then press Enter (or click Add). Everything is auto-stamped with today's date & time.",
-    ar: "كتبي بسرعة بكلماتك — لا تهتمين بالقواعد. اختاري النوع وبعدها ضغطي Enter (أو زر الإضافة). كل شي ينحفظ تلقائي بتاريخ ووقت اليوم.",
+    ar: "اكتبي بسرعة بكلماتك — لا تهتمين بالقواعد. اختاري النوع وبعدها دوسي Enter (أو زر الإضافة). كل شي ينحفظ تلقائي بتاريخ ووقت اليوم.",
   },
   "log.placeholder": {
     en: "e.g. finished the monthly safety report and sent it to the team…",
     ar: "مثلاً: خلّصتي تقرير السلامة الشهري وطرشتيه للفريق…",
   },
   "log.yourLog": { en: "Your log", ar: "سجلّك" },
-  "log.search": { en: "Search your entries…", ar: "سجلي في مدخلاتك…" },
+  "log.search": { en: "Search your entries…", ar: "دوّري في مدخلاتك…" },
   "log.allCats": { en: "All categories", ar: "كل الأنواع" },
   "log.empty": {
     en: "No entries yet. Capture your first task above ☝️",
@@ -252,7 +253,7 @@ export const T: Record<string, Entry> = {
   "tm.noOwner": { en: "{n} task(s) with no owner", ar: "{n} مهمة بدون مالك" },
 
   // ---- Team board (live cards) ----
-  "tb.title": { en: "Team · who's working on what", ar: "الفريق · منو يشتغل على وش" },
+  "tb.title": { en: "Team · who's working on what", ar: "الفريق" },
   "tb.sub": {
     en: "{active} active now · {done} completed · {pending} pending",
     ar: "{active} شغّالة الحين · {done} خالصة · {pending} بالانتظار",
