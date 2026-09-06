@@ -126,6 +126,8 @@ export const T: Record<string, Entry> = {
   "c.today": { en: "Today", ar: "اليوم" },
   "c.who": { en: "— who —", ar: "— منو —" },
   "c.assignLabel": { en: "Assign", ar: "تعيين" },
+  "pr.moveUp": { en: "Move up", ar: "تحريك لفوق" },
+  "pr.moveDown": { en: "Move down", ar: "تحريك تحت" },
   "c.copy": { en: "Copy", ar: "نسخ" },
   "c.open": { en: "Open", ar: "فتح" },
   "c.edit": { en: "Edit", ar: "تعديل" },
