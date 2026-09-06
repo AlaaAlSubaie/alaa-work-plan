@@ -47,6 +47,7 @@ export interface Project {
   status: Status;
   due: string; // "" or yyyy-mm-dd — target/reminder date
   ts: number;
+  order: number; // manual position within its status column (lower = higher up)
   tasks: ProjectTask[];
   issues: ProjectIssue[];
   assignees: string[]; // Employee ids working on this project
