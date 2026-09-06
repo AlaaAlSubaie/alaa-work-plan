@@ -35,7 +35,7 @@ interface MetaRow { dept: string | null; user_name: string | null }
 interface EmployeeRow { id: string; name: string; role: string | null }
 interface ProjectRow {
   id: string; name: string; note: string | null; status: Status;
-  due: string | null; created_at: string;
+  due: string | null; created_at: string; order_index: number | null;
 }
 interface TaskRow {
   id: string; project_id: string; text: string; status: TaskStatus;
@@ -63,7 +63,7 @@ export async function loadDB(): Promise<DB | null> {
     await Promise.all([
       supabase.from("meta").select("dept, user_name").maybeSingle(),
       supabase.from("employees").select("id, name, role").order("created_at"),
-      supabase.from("projects").select("id, name, note, status, due, created_at").order("created_at"),
+      supabase.from("projects").select("id, name, note, status, due, created_at, order_index").order("created_at"),
       supabase.from("project_tasks").select("id, project_id, text, status, assignee, priority").order("created_at"),
       supabase.from("project_issues").select("id, project_id, text, resolved").order("created_at"),
       supabase.from("project_assignees").select("project_id, employee_id"),
@@ -106,6 +106,7 @@ export async function loadDB(): Promise<DB | null> {
       status: r.status,
       due: r.due ?? "",
       ts: ms(r.created_at),
+      order: r.order_index ?? 0,
       tasks: tasksByProject.get(r.id) ?? [],
       issues: issuesByProject.get(r.id) ?? [],
       assignees: assigneesByProject.get(r.id) ?? [],
@@ -176,7 +177,7 @@ export async function syncDB(db: DB): Promise<void> {
     "projects",
     db.projects.map((p: Project) => ({
       id: p.id, user_id: uid, name: p.name, note: p.note,
-      status: p.status, due: p.due, created_at: iso(p.ts),
+      status: p.status, due: p.due, created_at: iso(p.ts), order_index: p.order,
     })),
     projIds
   );
