@@ -66,7 +66,6 @@ function Header() {
         <button className="btn ghost sm signout-btn" onClick={signOut}>
           {t("lock.signOut")}
         </button>
-
       </div>
     </header>
   );
