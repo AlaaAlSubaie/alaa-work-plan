@@ -205,78 +205,90 @@ function ProjectDetail({ p }: { p: Project }) {
         ) : (
           p.tasks.map((tk) => (
             <div key={tk.id} className="taskrow">
-              <button
-                className={"taskpill tp-" + tk.status}
-                onClick={() => cycleTask(tk.id, tk.status)}
-                title="Click to change status"
-              >
-                {t(pillKey(tk.status))}
-              </button>
-              {editId === tk.id ? (
-                <input
-                  className="taskedit"
-                  value={editText}
-                  autoFocus
-                  onChange={(e) => setEditText(e.target.value)}
-                  onBlur={saveTaskEdit}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") saveTaskEdit();
-                    if (e.key === "Escape") setEditId(null);
-                  }}
-                />
-              ) : (
-                <span
-                  className={"subtext" + (tk.status === "Completed" ? " done" : "")}
-                  onDoubleClick={() => {
-                    setEditId(tk.id);
-                    setEditText(tk.text);
-                  }}
+              <div className="taskrow-main">
+                <button
+                  className={"taskpill tp-" + tk.status}
+                  onClick={() => cycleTask(tk.id, tk.status)}
+                  title="Click to change status"
                 >
-                  {tk.text}
-                </span>
-              )}
-              <select
-                className="taskassign"
-                value={tk.assignee}
-                onChange={(e) =>
-                  setProjectTaskAssignee(p.id, tk.id, e.target.value)
-                }
-              >
-                <option value="">{t("c.who")}</option>
-                {taskOptions(tk.assignee).map((e) => (
-                  <option key={e.id} value={e.id}>
-                    {e.name}
-                  </option>
-                ))}
-              </select>
-              <span className="prio-group" title={t("prio.label")}>
-                {PRIORITIES.map((pr) => (
-                  <button
-                    key={pr}
-                    className={"prio-btn p-" + pr + (tk.priority === pr ? " on" : "")}
-                    onClick={() => setProjectTaskPriority(p.id, tk.id, pr)}
+                  {t(pillKey(tk.status))}
+                </button>
+                {editId === tk.id ? (
+                  <input
+                    className="taskedit"
+                    value={editText}
+                    autoFocus
+                    onChange={(e) => setEditText(e.target.value)}
+                    onBlur={saveTaskEdit}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") saveTaskEdit();
+                      if (e.key === "Escape") setEditId(null);
+                    }}
+                  />
+                ) : (
+                  <span
+                    className={"subtext" + (tk.status === "Completed" ? " done" : "")}
+                    onDoubleClick={() => {
+                      setEditId(tk.id);
+                      setEditText(tk.text);
+                    }}
                   >
-                    {t("prio." + pr)}
+                    {tk.text}
+                  </span>
+                )}
+              </div>
+              <div className="taskrow-controls">
+                <span className="ctrl-group">
+                  <span className="ctrl-label">{t("c.assignLabel")}</span>
+                  <select
+                    className="taskassign"
+                    value={tk.assignee}
+                    onChange={(e) =>
+                      setProjectTaskAssignee(p.id, tk.id, e.target.value)
+                    }
+                  >
+                    <option value="">{t("c.who")}</option>
+                    {taskOptions(tk.assignee).map((e) => (
+                      <option key={e.id} value={e.id}>
+                        {e.name}
+                      </option>
+                    ))}
+                  </select>
+                </span>
+                <span className="ctrl-group">
+                  <span className="ctrl-label">{t("prio.label")}</span>
+                  <span className="prio-group">
+                    {PRIORITIES.map((pr) => (
+                      <button
+                        key={pr}
+                        className={"prio-btn p-" + pr + (tk.priority === pr ? " on" : "")}
+                        onClick={() => setProjectTaskPriority(p.id, tk.id, pr)}
+                      >
+                        {t("prio." + pr)}
+                      </button>
+                    ))}
+                  </span>
+                </span>
+                <span className="taskrow-icons">
+                  <button
+                    className="iconbtn"
+                    title="Edit name"
+                    onClick={() => {
+                      setEditId(tk.id);
+                      setEditText(tk.text);
+                    }}
+                  >
+                    ✏️
                   </button>
-                ))}
-              </span>
-              <button
-                className="iconbtn"
-                title="Edit name"
-                onClick={() => {
-                  setEditId(tk.id);
-                  setEditText(tk.text);
-                }}
-              >
-                ✏️
-              </button>
-              <button
-                className="iconbtn"
-                title="Delete"
-                onClick={() => delProjectTask(p.id, tk.id)}
-              >
-                🗑️
-              </button>
+                  <button
+                    className="iconbtn"
+                    title="Delete"
+                    onClick={() => delProjectTask(p.id, tk.id)}
+                  >
+                    🗑️
+                  </button>
+                </span>
+              </div>
             </div>
           ))
         )}
