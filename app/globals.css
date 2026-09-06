@@ -1697,6 +1697,10 @@ mark {
 .psub-add.wrap {
   flex-wrap: wrap;
 }
+.psub-add.wrap input {
+  flex: 1 1 100%;
+  min-width: 100%;
+}
 .taskassign {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1711,14 +1715,47 @@ mark {
 }
 .taskrow {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
-  padding: 6px 0;
+  padding: 10px 0;
   border-bottom: 1px dashed var(--line);
-  flex-wrap: wrap;
 }
 .taskrow:last-child {
   border-bottom: none;
+}
+.taskrow-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.taskrow-main .subtext {
+  flex: 1;
+  min-width: 0;
+}
+.taskrow-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-inline-start: 4px;
+}
+.ctrl-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ctrl-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+.taskrow-icons {
+  display: inline-flex;
+  gap: 2px;
+  margin-inline-start: auto;
 }
 .taskpill {
   border: none;
