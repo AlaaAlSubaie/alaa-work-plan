@@ -99,6 +99,7 @@ function Footer() {
             ...p,
             status: (p.status as string) === "Done" ? "Completed" : p.status,
             due: p.due ?? "",
+            order: p.order ?? 0,
             tasks: (p.tasks ?? []).map((t) => ({
               id: t.id,
               text: t.text,
