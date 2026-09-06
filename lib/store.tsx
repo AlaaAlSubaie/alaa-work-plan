@@ -49,6 +49,7 @@ interface StoreCtx {
   editProject: (id: string, name: string, note: string) => void;
   setProjectStatus: (id: string, status: Project["status"]) => void;
   setProjectDue: (id: string, due: string) => void;
+  moveProjectOrder: (id: string, dir: number) => void;
   delProject: (id: string) => void;
   addProjectTask: (projectId: string, text: string, assignee: string) => void;
   setProjectTaskStatus: (
@@ -112,6 +113,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             ...p,
             status: (p.status as string) === "Done" ? "Completed" : p.status,
             due: p.due ?? "",
+            order: p.order ?? 0,
             tasks: (p.tasks ?? []).map((t) => ({
               id: t.id,
               text: t.text,
@@ -220,23 +222,29 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     (name: string, note: string, status: Project["status"], due: string) => {
       const n = name.trim();
       if (!n) return;
-      setDb((d) => ({
-        ...d,
-        projects: [
-          ...d.projects,
-          {
-            id: uid(),
-            name: n,
-            note: note.trim(),
-            status,
-            due: due || "",
-            ts: Date.now(),
-            tasks: [],
-            issues: [],
-            assignees: [],
-          },
-        ],
-      }));
+      setDb((d) => {
+        const maxOrder = d.projects
+          .filter((p) => p.status === status)
+          .reduce((m, p) => Math.max(m, p.order ?? 0), -1);
+        return {
+          ...d,
+          projects: [
+            ...d.projects,
+            {
+              id: uid(),
+              name: n,
+              note: note.trim(),
+              status,
+              due: due || "",
+              ts: Date.now(),
+              order: maxOrder + 1,
+              tasks: [],
+              issues: [],
+              assignees: [],
+            },
+          ],
+        };
+      });
     },
     []
   );
@@ -252,10 +260,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const setProjectStatus = useCallback(
     (id: string, status: Project["status"]) => {
-      setDb((d) => ({
-        ...d,
-        projects: d.projects.map((p) => (p.id === id ? { ...p, status } : p)),
-      }));
+      setDb((d) => {
+        const maxOrder = d.projects
+          .filter((p) => p.status === status && p.id !== id)
+          .reduce((m, p) => Math.max(m, p.order ?? 0), -1);
+        return {
+          ...d,
+          projects: d.projects.map((p) =>
+            p.id === id ? { ...p, status, order: maxOrder + 1 } : p
+          ),
+        };
+      });
     },
     []
   );
@@ -265,6 +280,31 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       ...d,
       projects: d.projects.map((p) => (p.id === id ? { ...p, due } : p)),
     }));
+  }, []);
+
+  // Reorder a project up/down within its own status column, renumbering the
+  // whole column (0..n-1) so order stays unambiguous and persists via
+  // order_index (synced to Supabase).
+  const moveProjectOrder = useCallback((id: string, dir: number) => {
+    setDb((d) => {
+      const p = d.projects.find((x) => x.id === id);
+      if (!p) return d;
+      const col = d.projects
+        .filter((x) => x.status === p.status)
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0) || a.ts - b.ts);
+      const i = col.findIndex((x) => x.id === id);
+      const j = i + dir;
+      if (j < 0 || j >= col.length) return d;
+      const reordered = [...col];
+      [reordered[i], reordered[j]] = [reordered[j], reordered[i]];
+      const orderById = new Map(reordered.map((x, idx) => [x.id, idx]));
+      return {
+        ...d,
+        projects: d.projects.map((x) =>
+          orderById.has(x.id) ? { ...x, order: orderById.get(x.id)! } : x
+        ),
+      };
+    });
   }, []);
 
   const delProject = useCallback((id: string) => {
@@ -513,6 +553,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         editProject,
         setProjectStatus,
         setProjectDue,
+        moveProjectOrder,
         delProject,
         addProjectTask,
         setProjectTaskStatus,
