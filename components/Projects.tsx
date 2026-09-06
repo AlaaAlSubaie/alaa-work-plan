@@ -356,6 +356,7 @@ export default function Projects() {
     addProject,
     editProject,
     setProjectStatus,
+    moveProjectOrder,
     delProject,
     addEmployee,
     delEmployee,
@@ -554,12 +555,7 @@ export default function Projects() {
         {COLUMNS.map(({ key }) => {
           const items = db.projects
             .filter((p) => p.status === key)
-            .sort((a, b) => {
-              if (a.due && b.due) return a.due.localeCompare(b.due);
-              if (a.due) return -1;
-              if (b.due) return 1;
-              return a.ts - b.ts;
-            });
+            .sort((a, b) => (a.order ?? 0) - (b.order ?? 0) || a.ts - b.ts);
           return (
             <div
               key={key}
@@ -583,7 +579,7 @@ export default function Projects() {
                   ＋
                 </button>
               </div>
-              {items.map((p) => {
+              {items.map((p, idx) => {
                 const doneTasks = p.tasks.filter((t) => t.status === "Completed").length;
                 const openIssues = p.issues.filter((i) => !i.resolved).length;
                 const isOpen = !!expanded[p.id];
@@ -606,7 +602,7 @@ export default function Projects() {
                       (isOpen ? " open" : "")
                     }
                   >
-                    {/* header: drag grip · name · expand chevron */}
+                    {/* header: drag grip · reorder · name · expand chevron */}
                     <div className="pcard-top">
                       <span
                         className="pgrip"
@@ -615,6 +611,24 @@ export default function Projects() {
                         onDragStart={() => setDragId(p.id)}
                         onDragEnd={() => setDragId(null)}
                       />
+                      <span className="pordbtns">
+                        <button
+                          className="ordbtn"
+                          title={t("pr.moveUp")}
+                          disabled={idx === 0}
+                          onClick={() => moveProjectOrder(p.id, -1)}
+                        >
+                          ▲
+                        </button>
+                        <button
+                          className="ordbtn"
+                          title={t("pr.moveDown")}
+                          disabled={idx === items.length - 1}
+                          onClick={() => moveProjectOrder(p.id, 1)}
+                        >
+                          ▼
+                        </button>
+                      </span>
                       <div className="pcard-titlewrap">
                         <div className="pname">{p.name}</div>
                         {p.note && <div className="pnote">{p.note}</div>}
