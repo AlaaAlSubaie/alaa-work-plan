@@ -18,10 +18,10 @@ export const T: Record<string, Entry> = {
   "app.title": { en: "Department Organizer", ar: "منظّم القسم" },
   "app.sub": {
     en: "Log your day · Polished weekly report · Track every project",
-    ar: "دوّني يومك · تقرير أسبوعي حلو · تابعي كل مشاريعك",
+    ar: "سجلي يومك · تقرير أسبوعي حلو · تابعي كل مشاريعك",
   },
   "app.dept": { en: "Department name", ar: "اسم القسم" },
-  "app.user": { en: "Your name", ar: "اسمك" },
+  "app.user": { en: "Your name", ar: "الاسم" },
   "app.loading": { en: "Loading your data…", ar: "قاعد يحمّل بياناتك…" },
   "foot.note": {
     en: "Your data is saved automatically in this browser on this computer. Back it up regularly with Export — and use the same browser each time.",
@@ -34,13 +34,13 @@ export const T: Record<string, Entry> = {
   "login.headline": { en: "Plan the day. Ship the week.", ar: "رتّبي يومك، وخلّصي أسبوعك." },
   "login.tagline": {
     en: "Capture quick notes, track your team, and turn it all into a polished weekly report — in one calm workspace.",
-    ar: "دوّني ملاحظاتك على طول، تابعي فريقك، وحوّلي كل شي لتقرير أسبوعي مرتّب — بمكان شغل واحد وهادي.",
+    ar: "سجلي ملاحظاتك على طول، تابعي فريقك، وحوّلي كل شي لتقرير أسبوعي مرتّب — بمكان شغل واحد وهادي.",
   },
   "login.f1": { en: "Daily log & agenda", ar: "السجل اليومي والأجندة" },
-  "login.f2": { en: "Live project board", ar: "لوحة مشاريع حيّة" },
+  "login.f2": { en: "Live project board", ar: "لوحة مشاريع " },
   "login.f3": { en: "One-tap weekly report", ar: "تقرير أسبوعي بلمسة وحدة" },
   "login.sub": { en: "Sign in to continue", ar: "سجّلي دخولك عشان تكمّلين" },
-  "login.keep": { en: "Keep me signed in", ar: "خلّني داخلة" },
+  "login.keep": { en: "Keep me signed in", ar: "خلّني داخله" },
   "login.tag": { en: "", ar: "" },
   "login.vol": { en: "Vol. 1 · 2026", ar: "العدد ١ · ٢٠٢٦" },
   "login.label": { en: "Workspace access", ar: "الدخول لمساحة الشغل" },
@@ -87,7 +87,7 @@ export const T: Record<string, Entry> = {
   "pw.errCurrent": { en: "Current password is wrong", ar: "كلمة السر الحالية غلط" },
 
   // ---- tabs ----
-  "tab.dashboard": { en: "Dashboard", ar: "اللوحة" },
+  "tab.dashboard": { en: "Dashboard", ar: "الملخص" },
   "tab.log": { en: "Daily Log", ar: "السجل اليومي" },
   "tab.agenda": { en: "Agenda", ar: "الأجندة" },
   "tab.projects": { en: "Projects", ar: "المشاريع" },
@@ -107,8 +107,8 @@ export const T: Record<string, Entry> = {
   "toast.openedSaved": { en: "Opened saved report", ar: "فتحنا التقرير المحفوظ" },
   "toast.copied": { en: "Copied 📋", ar: "اننسخ 📋" },
   "toast.remindersOn": { en: "Reminders enabled ✓", ar: "التذكيرات اشتغلت ✓" },
-  "toast.backupDown": { en: "Backup downloaded", ar: "انزّلت النسخة الاحتياطية" },
-  "toast.backupRestored": { en: "Backup restored", ar: "انرجعت النسخة الاحتياطية" },
+  "toast.backupDown": { en: "Backup downloaded", ar: "انزلت النسخة الاحتياطية" },
+  "toast.backupRestored": { en: "Backup restored", ar: "ارجعت النسخة الاحتياطية" },
   "toast.invalidFile": { en: "Invalid file", ar: "ملف غلط" },
   "toast.pickProj": { en: "Pick a project first", ar: "اختاري مشروع أول" },
   "dlg.delProject": { en: "Delete this project?", ar: "تبين تمسحين هذا المشروع؟" },
@@ -121,13 +121,13 @@ export const T: Record<string, Entry> = {
   "dlg.time": { en: "Time (HH:MM, leave empty for none):", ar: "الوقت (HH:MM، خلّيه فاضي إذا ما تبين):" },
 
   // ---- common ----
-  "c.add": { en: "Add", ar: "ضيفي" },
-  "c.clear": { en: "Clear", ar: "امسحي" },
+  "c.add": { en: "Add", ar: "أضف" },
+  "c.clear": { en: "Clear", ar: "مسح" },
   "c.today": { en: "Today", ar: "اليوم" },
   "c.who": { en: "— who —", ar: "— منو —" },
   "c.assignLabel": { en: "Assign", ar: "تعيين" },
-  "c.copy": { en: "Copy", ar: "انسخي" },
-  "c.open": { en: "Open", ar: "افتحي" },
+  "c.copy": { en: "Copy", ar: "نسخ" },
+  "c.open": { en: "Open", ar: "فتح" },
   "c.edit": { en: "Edit", ar: "تعديل" },
   "c.delete": { en: "Delete", ar: "حذف" },
 
@@ -139,21 +139,21 @@ export const T: Record<string, Entry> = {
   "cat.Note": { en: "Note", ar: "مذكرة" },
 
   // ---- stages ----
-  "stage.Upcoming": { en: "Upcoming", ar: "جاي" },
-  "stage.Progress": { en: "In Progress", ar: "شغّالة" },
+  "stage.Upcoming": { en: "Upcoming", ar: "جديد" },
+  "stage.Progress": { en: "In Progress", ar: "قيد التقدم" },
   "stage.Pending": { en: "Pending", ar: "بالانتظار" },
-  "stage.Testing": { en: "Testing", ar: "تحت الفحص" },
+  "stage.Testing": { en: "Testing", ar: "تحت التجربة" },
   "stage.Issues": { en: "Issues", ar: "ملاحظات" },
-  "stage.Completed": { en: "Completed", ar: "خالص" },
+  "stage.Completed": { en: "Completed", ar: "اكتمل" },
 
   // ---- task statuses ----
   "ts.Pending": { en: "Pending", ar: "بالانتظار" },
-  "ts.Progress": { en: "In Progress", ar: "شغّالة" },
-  "ts.Done": { en: "Done", ar: "خالص" },
+  "ts.Progress": { en: "In Progress", ar: "قيد التقدم" },
+  "ts.Done": { en: "Done", ar: "اكتمل" },
 
   // ---- task priority ----
   "prio.label": { en: "Priority", ar: "الأولوية" },
-  "prio.Low": { en: "Low", ar: "واطية" },
+  "prio.Low": { en: "Low", ar: "قليلة" },
   "prio.Medium": { en: "Medium", ar: "متوسطة" },
   "prio.High": { en: "High", ar: "عالية" },
 
@@ -164,11 +164,11 @@ export const T: Record<string, Entry> = {
     ar: "اكتبي بسرعة بكلماتك — لا تهتمين بالقواعد. اختاري النوع وبعدها دوسي Enter (أو زر الإضافة). كل شي ينحفظ تلقائي بتاريخ ووقت اليوم.",
   },
   "log.placeholder": {
-    en: "e.g. finished the monthly safety report and sent it to the team…",
-    ar: "مثلاً: خلّصتي تقرير السلامة الشهري وطرشتيه للفريق…",
+    en: "e.g. finished the achievements report and sent it to the team…",
+    ar: "مثلاً: خلّصتي تقرير الانجازات الشهري …",
   },
   "log.yourLog": { en: "Your log", ar: "سجلّك" },
-  "log.search": { en: "Search your entries…", ar: "دوّري في مدخلاتك…" },
+  "log.search": { en: "Search your entries…", ar: " بحثي في مدخلاتك …" },
   "log.allCats": { en: "All categories", ar: "كل الأنواع" },
   "log.empty": {
     en: "No entries yet. Capture your first task above ☝️",
@@ -206,7 +206,7 @@ export const T: Record<string, Entry> = {
   "pr.addBtn": { en: "Add project", ar: "ضيفي المشروع" },
   "pr.hint": {
     en: "Swipe the board sideways to see all stages. Use the ◀ ▶ buttons to move a card between stages. Set a target date to get reminders. Click Details to follow tasks, issues and assign team members.",
-    ar: "اسحبي اللوحة على جنب عشان تشوفين كل المراحل. استخدمي زرّي ◀ ▶ عشان تنقلين البطاقة بين المراحل. حدّدي تاريخ مستهدف عشان توصلك تذكيرات. دوسي على التفاصيل عشان تتابعين المهام والملاحظات وتعيّنين أعضاء الفريق.",
+    ar: "اسحبي اللوحة على جنب عشان تشوفين كل المراحل. استخدمي زرّي ▶ ◀ عشان تنقلين البطاقة بين المراحل. حدّدي تاريخ مستهدف عشان توصلك تذكيرات. دوسي على التفاصيل عشان تتابعين المهام والملاحظات وتعيّنين أعضاء الفريق.",
   },
   "pr.manageTeam": { en: "Manage team", ar: "إدارة الفريق" },
   "pr.empName": { en: "Employee name", ar: "اسم الموظف" },
@@ -362,7 +362,7 @@ export const T: Record<string, Entry> = {
   "wr.download": { en: "Download .txt", ar: "نزّلي .txt" },
   "wr.reportPh": { en: "Your generated report will appear here…", ar: "تقريرك بيظهر هني…" },
   "wr.saved": { en: "Saved reports", ar: "التقارير المحفوظة" },
-  "wr.noSaved": { en: "No saved reports yet. Generate one above and click 💾 Save.", ar: "ما في تقارير محفوظة لحد الحين. سوّي واحد فوق ودوسي 💾 احفظي." },
+  "wr.noSaved": { en: "No saved reports yet. Generate one above and click 💾 Save.", ar: "ما في تقارير محفوظة لحد الحين. سوّي واحد فوق وضغطي 💾 حفظ." },
   "wr.savedAt": { en: "Saved", ar: "انحفظ" },
   "wr.pullEmpty": { en: "No Daily Log entries or completed agenda tasks in this period — try a wider date range.", ar: "ما في مدخلات في السجل اليومي ولا مهام أجندة خالصة في هالفترة — جرّبي نطاق أوسع." },
   "wr.pull": {
