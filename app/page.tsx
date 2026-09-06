@@ -38,7 +38,6 @@ function LangToggle() {
 }
 
 function Header() {
-  const { db, setMeta } = useStore();
   const { t } = useLang();
   const [showPw, setShowPw] = useState(false);
   const signOut = async () => {
@@ -67,18 +66,7 @@ function Header() {
         <button className="btn ghost sm signout-btn" onClick={signOut}>
           {t("lock.signOut")}
         </button>
-        <div className="head-fields">
-          <input
-            placeholder={t("app.dept")}
-            value={db.meta.dept}
-            onChange={(e) => setMeta({ dept: e.target.value })}
-          />
-          <input
-            placeholder={t("app.user")}
-            value={db.meta.user}
-            onChange={(e) => setMeta({ user: e.target.value })}
-          />
-        </div>
+
       </div>
     </header>
   );
